@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- WARNING: Eclipse auto-generated file.
+              Any modifications will be overwritten.
+              To include a user specific buildfile here, simply create one in the same
+              directory with the processing instruction <?eclipse.ant.import?>
+              as the first entry and export the buildfile again. --><project basedir="." default="build" name="isw2-project">
+    <property environment="env"/>
+    <property name="ECLIPSE_HOME" value="../../../../opt/eclipse/"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.8"/>
+    <property name="source" value="1.8"/>
+    <path id="isw2-project.classpath">
+        <pathelement location="bin"/>
+        <pathelement location="lib/json-20190722.jar"/>
+        <pathelement location="lib/json-simple-1.1.1.jar"/>
+        <pathelement location="lib/jgit/args4j-2.33.jar"/>
+        <pathelement location="lib/jgit/bcpg-jdk15on-1.64.jar"/>
+        <pathelement location="lib/jgit/bcpkix-jdk15on-1.64.jar"/>
+        <pathelement location="lib/jgit/bcprov-jdk15on-1.64.jar"/>
+        <pathelement location="lib/jgit/commons-codec-1.11.jar"/>
+        <pathelement location="lib/jgit/commons-compress-1.19.jar"/>
+        <pathelement location="lib/jgit/commons-logging-1.2.jar"/>
+        <pathelement location="lib/jgit/eddsa-0.3.0.jar"/>
+        <pathelement location="lib/jgit/gson-2.8.2.jar"/>
+        <pathelement location="lib/jgit/httpclient-4.5.10.jar"/>
+        <pathelement location="lib/jgit/httpcore-4.4.12.jar"/>
+        <pathelement location="lib/jgit/JavaEWAH-1.1.7.jar"/>
+        <pathelement location="lib/jgit/javax.servlet-api-3.1.0.jar"/>
+        <pathelement location="lib/jgit/jetty-http-9.4.25.v20191220.jar"/>
+        <pathelement location="lib/jgit/jetty-io-9.4.25.v20191220.jar"/>
+        <pathelement location="lib/jgit/jetty-security-9.4.25.v20191220.jar"/>
+        <pathelement location="lib/jgit/jetty-server-9.4.25.v20191220.jar"/>
+        <pathelement location="lib/jgit/jetty-servlet-9.4.25.v20191220.jar"/>
+        <pathelement location="lib/jgit/jetty-util-9.4.25.v20191220.jar"/>
+        <pathelement location="lib/jgit/jsch-0.1.55.jar"/>
+        <pathelement location="lib/jgit/jzlib-1.1.1.jar"/>
+        <pathelement location="lib/jgit/log4j-1.2.15.jar"/>
+        <pathelement location="lib/jgit/org.eclipse.jgit-5.7.0.202003110725-r.jar"/>
+        <pathelement location="lib/jgit/org.eclipse.jgit.archive-5.7.0.202003110725-r.jar"/>
+        <pathelement location="lib/jgit/org.eclipse.jgit.http.apache-5.7.0.202003110725-r.jar"/>
+        <pathelement location="lib/jgit/org.eclipse.jgit.lfs-5.7.0.202003110725-r.jar"/>
+        <pathelement location="lib/jgit/org.eclipse.jgit.lfs.server-5.7.0.202003110725-r.jar"/>
+        <pathelement location="lib/jgit/org.eclipse.jgit.pgm-5.7.0.202003110725-r.jar"/>
+        <pathelement location="lib/jgit/org.eclipse.jgit.ssh.apache-5.7.0.202003110725-r.jar"/>
+        <pathelement location="lib/jgit/org.eclipse.jgit.ui-5.7.0.202003110725-r.jar"/>
+        <pathelement location="lib/jgit/org.osgi.core-4.3.1.jar"/>
+        <pathelement location="lib/jgit/slf4j-api-1.7.2.jar"/>
+        <pathelement location="lib/jgit/slf4j-log4j12-1.7.2.jar"/>
+        <pathelement location="lib/jgit/sshd-common-2.2.0.jar"/>
+        <pathelement location="lib/jgit/sshd-core-2.2.0.jar"/>
+        <pathelement location="lib/jgit/sshd-osgi-2.2.0.jar"/>
+        <pathelement location="lib/jgit/sshd-sftp-2.2.0.jar"/>
+    </path>
+    <target name="init">
+        <mkdir dir="bin"/>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="src">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+    <target name="clean">
+        <delete dir="bin"/>
+    </target>
+    <target depends="clean" name="cleanall"/>
+    <target depends="build-subprojects,build-project" name="build"/>
+    <target name="build-subprojects"/>
+    <target depends="init" name="build-project">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}">
+            <src path="src"/>
+            <classpath refid="isw2-project.classpath"/>
+        </javac>
+    </target>
+    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
+    <target description="copy Eclipse compiler jars to ant lib directory" name="init-eclipse-compiler">
+        <copy todir="${ant.library.dir}">
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </copy>
+        <unzip dest="${ant.library.dir}">
+            <patternset includes="jdtCompilerAdapter.jar"/>
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </unzip>
+    </target>
+    <target description="compile project with Eclipse compiler" name="build-eclipse-compiler">
+        <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
+        <antcall target="build"/>
+    </target>
+    <target name="SWAnalytics">
+        <java classname="it.uniroma2.ing.isw2.fmancini.swanalytics.SWAnalytics" failonerror="true" fork="yes">
+            <classpath refid="isw2-project.classpath"/>
+        </java>
+    </target>
+</project>
