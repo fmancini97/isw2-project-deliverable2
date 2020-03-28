@@ -51,7 +51,7 @@ public class SWAnalytics {
 			 	
 	          
 		} catch (IOException | ParseException e) {
-			logger.log(Level.WARNING, "Error while retrieving configuration: " + e.getMessage());
+			logger.log(Level.WARNING, "Error while retrieving configuration: {0}", e.getMessage());
 			System.exit(1);
 		}
 		
@@ -64,7 +64,7 @@ public class SWAnalytics {
 		try {
 			 tickets = jyraAPI.retriveTickets(issueType);
 		} catch (JSONException | IOException e) {
-			logger.log(Level.WARNING, "Error while retrieving tickets: " + e.getMessage());
+			logger.log(Level.WARNING, "Error while retrieving tickets: {0}", e.getMessage());
 			System.exit(1);
 		}
 		
@@ -82,7 +82,7 @@ public class SWAnalytics {
 		try {
 			commits = gitAPI.getCommits();
 		} catch (GitAPIException | IOException e) {
-			logger.log(Level.WARNING, "Error while retrieving commits: " + e.getMessage());
+			logger.log(Level.WARNING, "Error while retrieving commits: {0}", e.getMessage());
 			System.exit(1);
 		}
 		
@@ -117,7 +117,7 @@ public class SWAnalytics {
 		
 		csvWriter.flush();
 		} catch(IOException e) {
-			logger.log(Level.WARNING, "Error while writing CSV file: " + e.getMessage());
+			logger.log(Level.WARNING, "Error while writing CSV file: {0}", e.getMessage());
 			System.exit(1);
 			
 		}
