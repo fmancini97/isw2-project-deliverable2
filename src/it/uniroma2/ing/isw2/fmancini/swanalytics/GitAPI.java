@@ -13,14 +13,7 @@ import java.util.List;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevWalk;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * @author fmancini
@@ -36,47 +29,38 @@ public class GitAPI {
 		this.projectName = projectName.toLowerCase();
 	}
 	
-	List<CommitInfo> getCommits() {
+	List<CommitInfo> getCommits() throws GitAPIException, IOException {
 		
-		List<CommitInfo> commits = new ArrayList<CommitInfo>();
-		Git git = null;
-		try {
-			
-			if (!Files.exists(Paths.get("output/" + projectName))) {
-				git = Git.cloneRepository()
-						.setURI(gitUrl + projectName + ".git")
-						.setDirectory(new File("output/" + projectName))
-						.call();
-			} else {
-				git = Git.open(new File( "output/" + projectName + "/.git"));
-			}
-			
-		} catch (GitAPIException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		
-		Repository repository = git.getRepository();
+		List<CommitInfo> commits = new ArrayList<>();
+		Git git = this.getRepository();
         
         Iterable<RevCommit> commitsLog = null;
-		try {
-			commitsLog = git.log().call();
-		} catch (GitAPIException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
+		commitsLog = git.log().call();
+		
 		
        
         for (RevCommit commit : commitsLog) {
         	
         	commits.add(new CommitInfo(commit.getName(), new Date(commit.getCommitTime() * 1000L), commit.getFullMessage()));
         }
-        
-        
-            
+                    
         return commits;
 	}
 	
+	private Git getRepository() throws IOException, GitAPIException {
+		String projectDir = "output/" + projectName.toLowerCase();
+		
+		if (!Files.exists(Paths.get(projectDir))) {
+			return Git.cloneRepository()
+					.setURI(gitUrl + projectName + ".git")
+					.setDirectory(new File(projectDir))
+					.call();
+		} else {
+			try (Git git = Git.open(new File( projectDir + "/.git"))){
+				return git;
+			}
+		}	
+	}
 	
 }

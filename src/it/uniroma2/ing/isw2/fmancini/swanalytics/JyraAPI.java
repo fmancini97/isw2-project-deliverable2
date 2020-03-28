@@ -3,18 +3,11 @@
  */
 package it.uniroma2.ing.isw2.fmancini.swanalytics;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -31,10 +24,12 @@ public class JyraAPI {
 	}
 	
 	
-	public Map<String,Ticket> retriveTickets(IssueType issueType) throws JSONException, IOException {
-		Map<String,Ticket> tickets = new HashMap<String,Ticket>();
+	public Map<String,Ticket> retriveTickets(IssueType issueType) throws IOException {
+		Map<String,Ticket> tickets = new HashMap<>();
 		
-		Integer j = 0, i = 0, total = 1;
+		Integer j = 0;
+		Integer i = 0;
+		Integer total = 1;
 	      //Get JSON API for closed bugs w/ AV in the project
 	      do {
 	         //Only gets a max of 1000 at a time, so must do this multiple times if bugs >1000

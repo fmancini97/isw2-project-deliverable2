@@ -25,7 +25,7 @@ public class CommitInfo {
 	}
 	
 	public String findTickeId(String ticketPath) {
-		String ticketId = ticketPath;
+		StringBuilder ticketId = new StringBuilder(ticketPath);
 		
 		int index = message.indexOf(ticketPath);
 		if (index == -1) {
@@ -37,14 +37,14 @@ public class CommitInfo {
 				try {
 			        Integer.parseInt(num);
 			    } catch (NumberFormatException nfe) {
-			        return ticketId;
+			        return ticketId.toString();
 			    }
 				
-				ticketId = ticketId + num;
+				ticketId.append(num);
 				
 				index++;
 			}
-			return ticketId;
+			return ticketId.toString();
 		}
 	}
 	
