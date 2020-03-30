@@ -130,7 +130,7 @@ public class SWAnalytics {
 		for (CommitInfo commit : commits) {
 			ticketId = commit.findTickeId(projectName.toUpperCase() + "-");
 			
-			if (ticketId.equals("")) {
+			if (!ticketId.equals("")) {
 				Ticket ticket = tickets.get(ticketId);
 				if (ticket != null && (ticket.getResolvedDate() == null || ticket.getResolvedDate().compareTo(commit.getDate()) < 0)) {
 					ticket.setResolvedDate(commit.getDate());
