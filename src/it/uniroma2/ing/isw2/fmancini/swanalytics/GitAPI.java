@@ -58,6 +58,7 @@ public class GitAPI {
 					.call();
 		} else {
 			try (Git git = Git.open(new File( projectDir + "/.git"))){
+				git.pull().call();
 				return git;
 			}
 		}	
