@@ -126,11 +126,10 @@ public class SWAnalytics {
 	}
 	
 	public static void findFixedDate(String projectName, Map<String,Ticket> tickets, List<CommitInfo> commits) {
-		String ticketId;
 		for (CommitInfo commit : commits) {
-			ticketId = commit.findTickeId(projectName.toUpperCase() + "-");
+			List<String> ticketIds = commit.findTicketIds(projectName.toUpperCase() + "-");
 			
-			if (!ticketId.equals("")) {
+			for (String ticketId: ticketIds) { 
 				Ticket ticket = tickets.get(ticketId);
 				if (ticket != null && (ticket.getResolvedDate() == null || ticket.getResolvedDate().compareTo(commit.getDate()) < 0)) {
 					ticket.setResolvedDate(commit.getDate());

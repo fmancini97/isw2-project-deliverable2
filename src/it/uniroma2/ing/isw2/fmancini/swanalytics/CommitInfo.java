@@ -1,6 +1,8 @@
 package it.uniroma2.ing.isw2.fmancini.swanalytics;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class CommitInfo {
 	private String id;
@@ -24,28 +26,33 @@ public class CommitInfo {
 		return message;
 	}
 	
-	public String findTickeId(String ticketPath) {
-		StringBuilder ticketId = new StringBuilder(ticketPath);
+	public List<String> findTicketIds(String ticketPath) {
+		List<String> ticketIds= new ArrayList<>();
+		
+		
 		
 		int index = message.indexOf(ticketPath);
-		if (index == -1) {
-			return "";
-		} else {
+		while (index != -1) {
+			StringBuilder ticketId = new StringBuilder(ticketPath);
 			index+=ticketPath.length();
 			while (index < message.length()) {
 				String num = message.substring(index, index + 1);
 				try {
 			        Integer.parseInt(num);
 			    } catch (NumberFormatException nfe) {
-			        return ticketId.toString();
+			    	break;
 			    }
 				
 				ticketId.append(num);
 				
 				index++;
 			}
-			return ticketId.toString();
+			ticketIds.add(ticketId.toString());
+			index = message.indexOf(ticketPath, index);
+			
 		}
+		
+		return ticketIds;
 	}
 	
 	
