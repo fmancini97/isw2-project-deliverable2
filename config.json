@@ -1,4 +1,5 @@
 {
-	"project-name": "MAHOUT",
-	"analysis-type": "BUGS"
+	"project-name": "OPENJPA",
+	"analysis-type": "BUGS",
+	"git-release-path": "%s"
 }

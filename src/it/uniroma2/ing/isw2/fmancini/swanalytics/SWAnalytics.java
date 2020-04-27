@@ -6,14 +6,19 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import it.uniroma2.ing.isw2.fmancini.swanalytics.metrics.MetricType;
+
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,9 +30,10 @@ public class SWAnalytics {
 		Logger logger = Logger.getLogger(SWAnalytics.class.getName());
 		String projectName = "";
 		IssueType issueType = null; 
+		String gitReleasePath = "";
 		
 		JSONParser jsonParser = new JSONParser();
-		JyraAPI jyraAPI;
+		JiraAPI jiraAPI;
 		
 		logger.info("Retrieving configuration");
 		
@@ -48,6 +54,12 @@ public class SWAnalytics {
 		 		logger.log(Level.WARNING, "Error: Invalid Analysis type. Available analysis types are: {0}", Arrays.toString(IssueType.values())); 
 			 	System.exit(1);
 		 	}	
+		 	
+		 	gitReleasePath = (String) obj.get("git-release-path");
+		 	
+		 	if (gitReleasePath == null) {
+		 		gitReleasePath = "%s";
+		 	}	
 			 	
 	          
 		} catch (IOException | ParseException e) {
@@ -55,87 +67,90 @@ public class SWAnalytics {
 			System.exit(1);
 		}
 		
+		
+		
+		
+		ProjectAnalyzer projectAnalyzer = new ProjectAnalyzer(projectName);
+		try {
+			projectAnalyzer.init();
+		} catch (IOException | GitAPIException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		logger.log(Level.INFO, "Looking for issues of type {0} for the project {1}", new Object[] {issueType, projectName});
-		
-		jyraAPI = new JyraAPI(projectName);
-		
-		
-		Map<String,Ticket> tickets = null;
+		Map<String, Ticket> tickets;
 		try {
-			 tickets = jyraAPI.retriveTickets(issueType);
-		} catch (JSONException | IOException e) {
-			logger.log(Level.WARNING, "Error while retrieving tickets: {0}", e.getMessage());
-			System.exit(1);
-		}
+			tickets = projectAnalyzer.analyzeTickets(issueType);
+			logger.info("Generating CSV file");
+
+			
+			
+			CSVDAO releasesCSV = new CSVDAO("output/" + projectName + "_" + issueType.toString());
+			releasesCSV.open();
+			
+			releasesCSV.saveToCSV(new ArrayList<>(tickets.values()));
+			releasesCSV.close();
+			
+			
+			logger.info("CSV file generated successfully");
+		} catch (IOException | GitAPIException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
 		
-		if (tickets == null) {
-			logger.log(Level.SEVERE, "Error while retrieving tickets: null structure returnd by: JyraAPI.retriveTickets()");
-			System.exit(1);
-		}
-		
-		logger.log(Level.INFO, "Looking for commits of the project {0}", projectName);
+		logger.info("Looking for project releases");
 
 		
-		GitAPI gitAPI = new GitAPI(projectName);
-		
-		List<CommitInfo> commits = null;
 		try {
-			commits = gitAPI.getCommits();
-		} catch (GitAPIException | IOException e) {
-			logger.log(Level.WARNING, "Error while retrieving commits: {0}", e.getMessage());
-			System.exit(1);
-		}
-		
-		if (commits == null) {
-			logger.log(Level.SEVERE, "Error while retrieving commits: null structure returnd by: GitAPI.getCommits()");
-			System.exit(1);
-		}
-		
-		logger.info("Looking for conclusion date of the tickets ");
+			List<Release> releases =projectAnalyzer.getReleases(gitReleasePath);
 
-		
-		findFixedDate(projectName, tickets, commits);
-		
-		logger.info("Generating CSV file");
+			logger.info("Generating CSV file");
 
-		try (FileWriter csvWriter = new FileWriter("output/" + projectName.toLowerCase() + ".csv")) {
-		csvWriter.append("Ticket ID");
-		csvWriter.append(",");
-		csvWriter.append("Date");
-		csvWriter.append("\n");
-		
-		 Iterator<Map.Entry<String,Ticket>> it = tickets.entrySet().iterator();
-		 while (it.hasNext()) {
-		        Map.Entry<String,Ticket> pair = it.next();
-		        String key = pair.getKey();
-		        Ticket ticket = pair.getValue();
-		        
-		        String date = (ticket.getResolvedDate() != null) ?  new SimpleDateFormat("yyyy-MM-dd").format(ticket.getResolvedDate()) : "";
-				csvWriter.append(key + "," + date + "\n");
-		 }
-	
-		
-		csvWriter.flush();
-		} catch(IOException e) {
-			logger.log(Level.WARNING, "Error while writing CSV file: {0}", e.getMessage());
-			System.exit(1);
+			CSVDAO releasesCSV = new CSVDAO("output/" + projectName + "_versions");
+			releasesCSV.open();
 			
-		}
+			releasesCSV.saveToCSV(releases);
+			releasesCSV.close();
+
+			logger.info("CSV file generated successfully");
+
+		} catch (JSONException | IOException | java.text.ParseException | GitAPIException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
 		
-		logger.info("CSV file generated successfully");
-	}
-	
-	public static void findFixedDate(String projectName, Map<String,Ticket> tickets, List<CommitInfo> commits) {
-		for (CommitInfo commit : commits) {
-			List<String> ticketIds = commit.findTicketIds(projectName.toUpperCase() + "-");
+		
+		logger.info("Analyzing project classes");
+		
+		
+		
+		try {
+			List<MetricType> metrics = new ArrayList<>();
+			metrics.addAll(Arrays.asList(MetricType.values()));
+			MeasurmentIterator measurmentIterator = projectAnalyzer.analyzeClasses(metrics);
 			
-			for (String ticketId: ticketIds) { 
-				Ticket ticket = tickets.get(ticketId);
-				if (ticket != null && (ticket.getResolvedDate() == null || ticket.getResolvedDate().compareTo(commit.getDate()) < 0)) {
-					ticket.setResolvedDate(commit.getDate());
-				}
+			logger.info("Generating CSV file");
+
+			
+			CSVDAO metricCSV = new CSVDAO("output/" + projectName + "_classes");
+			metricCSV.open();
+			
+			for (List<ClassData> classes = measurmentIterator.next(); classes.size() != 0; classes = measurmentIterator.next()) {
+				metricCSV.saveToCSV(classes);
 			}
+			metricCSV.close();
+			
+			logger.info("CSV file generated successfully");
+			
+		} catch (JSONException | IOException | java.text.ParseException | GitAPIException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		
+		
+		
+		
+		
 	}
 }
 

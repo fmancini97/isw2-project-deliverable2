@@ -3,13 +3,14 @@
  */
 package it.uniroma2.ing.isw2.fmancini.swanalytics;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
  * @author fmancini
  *
  */
-public class Ticket {
+public class Ticket implements CSVable{
 	 private String projectName;
 	 private String ticketID;
 	 private IssueType issueType;
@@ -39,5 +40,18 @@ public class Ticket {
 
 	public IssueType getIssueType() {
 		return issueType;
+	}
+
+	@Override
+	public String toCSV() {
+		
+		
+		String date = (this.resolvedDate != null) ? new SimpleDateFormat("yyyy-MM-dd").format(this.resolvedDate) : "";
+		return this.ticketID + "," + date;
+	}
+
+	@Override
+	public String getHeader() {
+		return "Ticket ID,Resolved Date";
 	}
 }
