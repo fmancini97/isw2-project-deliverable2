@@ -6,16 +6,12 @@ package it.uniroma2.ing.isw2.fmancini.swanalytics;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -63,16 +59,10 @@ public class JiraAPI {
 	      
 	}
 	
-	public TreeSet<ReleaseJira> retriveReleases() throws IOException, JSONException, ParseException{
+	public SortedSet<ReleaseJira> retriveReleases() throws IOException, ParseException{
 		
 		String url = basicUrl + "project/" + this.projectName + "/version";
-		TreeSet<ReleaseJira> releases = new TreeSet<>(new Comparator<ReleaseJira>(){
-            //@Override
-            public int compare(ReleaseJira o1, ReleaseJira o2) {
-                return o1.getReleaseDate().compareTo(o2.getReleaseDate());
-            }
-         }); 
-		
+		TreeSet<ReleaseJira> releases = new TreeSet<>((o1,o2) -> o1.getReleaseDate().compareTo(o2.getReleaseDate()));
 		
 		JSONObject json = JSONTools.readJsonFromUrl(url);
         JSONArray versions = json.getJSONArray("values");

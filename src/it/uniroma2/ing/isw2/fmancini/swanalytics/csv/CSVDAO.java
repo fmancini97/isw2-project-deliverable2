@@ -1,19 +1,13 @@
-package it.uniroma2.ing.isw2.fmancini.swanalytics;
+package it.uniroma2.ing.isw2.fmancini.swanalytics.csv;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
 
 public class CSVDAO {
 	private String csvName;
 	private FileWriter csvWriter;
-	private boolean hasHeader;
-	private Integer length;
-	
+	private boolean hasHeader;	
 	
 	public CSVDAO(String csvName) {
 		
@@ -24,10 +18,8 @@ public class CSVDAO {
 		}
 		
 		this.hasHeader = false; 
-		this.length=0;
 		
 	}
-	
 	
 	public void open() throws IOException {
 		this.csvWriter = new FileWriter(this.csvName);
@@ -37,18 +29,25 @@ public class CSVDAO {
 		this.csvWriter.close();
 	}
 	
-	public void saveToCSV(List<? extends CSVable>... data) throws IOException {
+	public void saveToCSV(List<? extends CSVable>... data) throws IOException, CSVIncorrectNumValues {
+		Integer length=0;
 		
 		// Check iterator sizes
+		for (List<? extends CSVable> value : data) {
+			if (length == 0) {
+				length = value.size();
+			} else if (length != value.size()) {
+				throw new CSVIncorrectNumValues(value.size(), length);
+			}
+		}
 		
 		if (!this.hasHeader) {
 			this.appendHeader(data);
 			this.hasHeader = true;
 		}
 		
-		boolean isfirst = true;
-		for (Integer i = 0; i < this.length; i++) {
-			isfirst = true;
+		for (Integer i = 0; i < length; i++) {
+			boolean isfirst = true;
 			csvWriter.append('\n');
 			for (List<? extends CSVable> value : data) {
 				if (isfirst) {
@@ -65,12 +64,6 @@ public class CSVDAO {
 	private void appendHeader(List<? extends CSVable>... data) throws IOException {
 		boolean isfirst = true;
 		for (List<? extends CSVable> value : data) {
-			if (this.length == 0) {
-				this.length = value.size();
-			} else if (length != value.size()) {
-				// TODO throware eccezione
-				throw new Error("Lunghezze non vanno bene");
-			}
 			if (isfirst) {
 				isfirst = false;
 			}	else {

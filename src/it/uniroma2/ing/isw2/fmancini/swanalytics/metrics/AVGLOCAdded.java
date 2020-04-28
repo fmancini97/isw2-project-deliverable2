@@ -4,7 +4,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import it.uniroma2.ing.isw2.fmancini.swanalytics.DiffData;
 
-public class AVGLOCAdded extends Metric{
+public class AVGLOCAdded extends RevisionMetric{
 	
 	private NumRevisions numRevisions;
 	private LOCAdded locAdded;
@@ -25,11 +25,11 @@ public class AVGLOCAdded extends Metric{
 	public void updateMeasurment(RevCommit commit, DiffData diff) {
 		this.numRevisions.updateMeasurment(commit, diff);
 		this.locAdded.updateMeasurment(commit, diff);
-		super.setMeasurment(Math.round(this.locAdded.getMeasurment()/this.numRevisions.getMeasurment()));
+		super.setMeasurment(this.locAdded.getMeasurment()/this.numRevisions.getMeasurment());
 	}
 
 	@Override
-	public Metric duplicate() {
+	public RevisionMetric duplicate() {
 		return new AVGLOCAdded(this);
 	}
 	

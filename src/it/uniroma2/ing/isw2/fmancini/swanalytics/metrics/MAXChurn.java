@@ -4,7 +4,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import it.uniroma2.ing.isw2.fmancini.swanalytics.DiffData;
 
-public class MAXChurn extends Metric {
+public class MAXChurn extends RevisionMetric {
 
 	
 	public MAXChurn() {
@@ -22,7 +22,7 @@ public class MAXChurn extends Metric {
 	}
 
 	@Override
-	public Metric duplicate() {
+	public RevisionMetric duplicate() {
 		return new MAXChurn(this);
 	}
 

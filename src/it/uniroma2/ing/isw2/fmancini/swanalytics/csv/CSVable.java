@@ -1,4 +1,4 @@
-package it.uniroma2.ing.isw2.fmancini.swanalytics;
+package it.uniroma2.ing.isw2.fmancini.swanalytics.csv;
 
 public interface CSVable {
 	public String toCSV();

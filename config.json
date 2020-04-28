@@ -1,5 +1,17 @@
-{
+[{
 	"project-name": "OPENJPA",
-	"analysis-type": "BUGS",
-	"git-release-path": "%s"
+	"tasks": ["TICKETS", "CLASSES", "VERSIONS"],
+	"analysis-types": ["BUGS"],
+},
+{
+	"project-name": "MAHOUT",
+	"tasks": ["TICKETS"],
+	"analysis-types": ["BUGS"],
+},
+{
+	"project-name": "BOOKKEEPER",
+	"tasks": ["TICKETS", "CLASSES", "VERSIONS"],
+	"analysis-types": ["BUGS"],
+	"git-release-regex": "release-%s"
 }
+]

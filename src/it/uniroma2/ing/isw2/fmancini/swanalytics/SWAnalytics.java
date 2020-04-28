@@ -1,24 +1,15 @@
 package it.uniroma2.ing.isw2.fmancini.swanalytics;
 
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.json.JSONException;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import it.uniroma2.ing.isw2.fmancini.swanalytics.metrics.MetricType;
-
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,131 +18,111 @@ public class SWAnalytics {
 
 	public static void main(String[] args) {
 		
-		Logger logger = Logger.getLogger(SWAnalytics.class.getName());
-		String projectName = "";
-		IssueType issueType = null; 
-		String gitReleasePath = "";
+		Logger logger = Logger.getLogger(SWAnalytics.class.getSimpleName());
+		
 		
 		JSONParser jsonParser = new JSONParser();
-		JiraAPI jiraAPI;
 		
 		logger.info("Retrieving configuration");
+		List<ProjectWorker> workerTasks = new ArrayList<>();
+
 		
 		try (FileReader reader = new FileReader("config.json")) {
 	            //Read JSON file
-			JSONObject obj = (JSONObject) jsonParser.parse(reader);
-	            
-		 	projectName = (String) obj.get("project-name");
+			
+			JSONArray projectConfs = (JSONArray) jsonParser.parse(reader);
+			
+			for (Integer i = 0; i < projectConfs.size(); i++) {
+				ProjectWorker workerTask = SWAnalytics.genWorker((JSONObject) projectConfs.get(i), logger);
+				if (workerTask != null) {
+					workerTasks.add(workerTask);
+				}
+					
+			}	            
 		 	
-		 	if (projectName == null || projectName.equals("")) {
-		 		logger.log(Level.WARNING, "Error: Invalid project name"); 
-			 	System.exit(1);
-		 	}
-			 	
-		 	issueType = IssueType.valueOf((String) obj.get("analysis-type"));
-			 	
-		 	if (issueType == null) {
-		 		logger.log(Level.WARNING, "Error: Invalid Analysis type. Available analysis types are: {0}", Arrays.toString(IssueType.values())); 
-			 	System.exit(1);
-		 	}	
-		 	
-		 	gitReleasePath = (String) obj.get("git-release-path");
-		 	
-		 	if (gitReleasePath == null) {
-		 		gitReleasePath = "%s";
-		 	}	
+			for (ProjectWorker workerTask : workerTasks) {
+				workerTask.start();
+			}
+			
+			for (ProjectWorker workerTask : workerTasks) {
+				workerTask.join();
+			}
+			
 			 	
 	          
 		} catch (IOException | ParseException e) {
 			logger.log(Level.WARNING, "Error while retrieving configuration: {0}", e.getMessage());
 			System.exit(1);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 		}
-		
-		
-		
-		
-		ProjectAnalyzer projectAnalyzer = new ProjectAnalyzer(projectName);
-		try {
-			projectAnalyzer.init();
-		} catch (IOException | GitAPIException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		logger.log(Level.INFO, "Looking for issues of type {0} for the project {1}", new Object[] {issueType, projectName});
-		Map<String, Ticket> tickets;
-		try {
-			tickets = projectAnalyzer.analyzeTickets(issueType);
-			logger.info("Generating CSV file");
-
-			
-			
-			CSVDAO releasesCSV = new CSVDAO("output/" + projectName + "_" + issueType.toString());
-			releasesCSV.open();
-			
-			releasesCSV.saveToCSV(new ArrayList<>(tickets.values()));
-			releasesCSV.close();
-			
-			
-			logger.info("CSV file generated successfully");
-		} catch (IOException | GitAPIException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}	
-		
-		logger.info("Looking for project releases");
-
-		
-		try {
-			List<Release> releases =projectAnalyzer.getReleases(gitReleasePath);
-
-			logger.info("Generating CSV file");
-
-			CSVDAO releasesCSV = new CSVDAO("output/" + projectName + "_versions");
-			releasesCSV.open();
-			
-			releasesCSV.saveToCSV(releases);
-			releasesCSV.close();
-
-			logger.info("CSV file generated successfully");
-
-		} catch (JSONException | IOException | java.text.ParseException | GitAPIException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}	
-		
-		
-		logger.info("Analyzing project classes");
-		
-		
-		
-		try {
-			List<MetricType> metrics = new ArrayList<>();
-			metrics.addAll(Arrays.asList(MetricType.values()));
-			MeasurmentIterator measurmentIterator = projectAnalyzer.analyzeClasses(metrics);
-			
-			logger.info("Generating CSV file");
-
-			
-			CSVDAO metricCSV = new CSVDAO("output/" + projectName + "_classes");
-			metricCSV.open();
-			
-			for (List<ClassData> classes = measurmentIterator.next(); classes.size() != 0; classes = measurmentIterator.next()) {
-				metricCSV.saveToCSV(classes);
-			}
-			metricCSV.close();
-			
-			logger.info("CSV file generated successfully");
-			
-		} catch (JSONException | IOException | java.text.ParseException | GitAPIException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		
-		
-		
-		
+	
 	}
+	
+	private static ProjectWorker genWorker(JSONObject projectConf, Logger logger) {
+		ProjectWorker workerTask = null;
+		String projectName = "";
+		String gitReleaseRegex = "";
+		
+		projectName = (String) projectConf.get("project-name");
+		if (projectName == null || projectName.equals("")) {
+	 		logger.log(Level.WARNING, "Error: Invalid project name or missing tasks"); 
+		 	return workerTask;
+	 	}
+		
+		JSONArray jsonTasks = (JSONArray) projectConf.get("tasks");
+		
+		if (jsonTasks == null) {
+	 		logger.log(Level.WARNING, "Error: Missing tasks"); 
+	 		return workerTask;
+
+		}
+	 	
+	 	List<WorkerTask> tasks = new ArrayList<>();
+	 	for (Integer j = 0; j < jsonTasks.size(); j++) {
+	 		WorkerTask task = WorkerTask.valueOf((String) jsonTasks.get(j));
+	 		
+	 		if (task == null) {
+		 		logger.log(Level.WARNING, "Error: Invalid Task {0}. Available analysis types are: {1}", new Object[] {(String) jsonTasks.get(j), Arrays.toString(WorkerTask.values())}); 
+
+	 		} else {
+	 			tasks.add(task);
+	 		}
+	 		
+	 	}
+	 	
+	 	JSONArray jsonIssues = (JSONArray) projectConf.get("analysis-types");
+	 	List<IssueType> issueTypes = new ArrayList<>();
+
+	 	if (jsonIssues != null) {
+	 		for (Integer j = 0; j < jsonIssues.size(); j++) {
+				IssueType issueType = IssueType.valueOf((String) jsonIssues.get(j));
+		 		
+		 		if (issueType == null) {
+			 		logger.log(Level.WARNING, "Error: Invalid Analysis type {0}. Available analysis types are: {1}", new Object[] {(String) jsonIssues.get(j), Arrays.toString(IssueType.values())}); 
+
+		 		} else {
+		 			issueTypes.add(issueType);
+		 		}
+		 		
+		 	}
+	 	}
+	 	
+	 	gitReleaseRegex = (String) projectConf.get("git-release-regex");
+	 	
+	 	if (gitReleaseRegex == null) {
+	 		gitReleaseRegex = "%s";
+	 	}	
+	 	
+	 	workerTask = new ProjectWorker(projectName);
+	 	workerTask.setIssueTypes(issueTypes);
+	 	workerTask.setGitReleaseRegex(gitReleaseRegex);
+	 	workerTask.setWorkerTasks(tasks);
+	 	
+	 	return workerTask;
+	}
+	
+	
 }
 
 

@@ -4,7 +4,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import it.uniroma2.ing.isw2.fmancini.swanalytics.DiffData;
 
-public class AVGChurn extends Metric {
+public class AVGChurn extends RevisionMetric {
 	
 	private NumRevisions numRevisions;
 	private Churn churn;
@@ -25,11 +25,11 @@ public class AVGChurn extends Metric {
 	public void updateMeasurment(RevCommit commit, DiffData diff) {
 		this.numRevisions.updateMeasurment(commit, diff);
 		this.churn.updateMeasurment(commit, diff);
-		super.setMeasurment(Math.round(this.churn.getMeasurment()/this.numRevisions.getMeasurment()));
+		super.setMeasurment(this.churn.getMeasurment()/this.numRevisions.getMeasurment());
 	}
 
 	@Override
-	public Metric duplicate() {
+	public RevisionMetric duplicate() {
 		return new AVGChurn(this);
 	}
 	

@@ -6,27 +6,18 @@ package it.uniroma2.ing.isw2.fmancini.swanalytics;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.TreeSet;
+import java.util.Map;
 
 import org.eclipse.jgit.api.DiffCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.LogCommand;
-import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.api.errors.InvalidRefNameException;
-import org.eclipse.jgit.api.errors.NoHeadException;
-import org.eclipse.jgit.api.errors.RefAlreadyExistsException;
-import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.diff.DiffFormatter;
@@ -35,13 +26,9 @@ import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.patch.FileHeader;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevSort;
-import org.eclipse.jgit.revwalk.RevTag;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
-import org.eclipse.jgit.util.io.DisabledOutputStream;
 
 /**
  * @author fmancini
@@ -55,16 +42,43 @@ public class GitAPI {
 	
 	private Git git;
 	
-	public GitAPI(String projectName) {
+	private String repoDir;
+	
+	private String baseDir;
+	
+	
+	public GitAPI(String projectName, String baseDir) {
 		this.projectName = projectName.toLowerCase();
+		if (!baseDir.substring(baseDir.length() - 1).contains("/")) {
+			this.baseDir = baseDir + "/";
+		} else {
+			this.baseDir = baseDir;
+		}
 	}
 	
 	public void init() throws IOException, GitAPIException {
-		this.git = this.getRepository();
+		this.repoDir = this.baseDir + projectName.toLowerCase() + "/" + projectName + "_repo";
+		
+		if (!Files.exists(Paths.get(repoDir))) {
+			this.git = Git.cloneRepository()
+					.setURI(gitUrl + projectName + ".git")
+					.setDirectory(new File(repoDir))
+					.call();
+		} else {
+			try (Git gitRepo = Git.open(new File( repoDir + "/.git"))){
+				gitRepo.checkout().setName("master").call();
+				gitRepo.pull().call();
+				
+				this.git = gitRepo;
+			}
+		}
 	}
- 	
 	
-	List<CommitInfo> getCommits() throws GitAPIException, IOException {
+	public String getRepoDir() {
+		return repoDir;
+	}
+
+	List<CommitInfo> getCommits() throws GitAPIException {
 		
 		List<CommitInfo> commits = new ArrayList<>();  
         Iterable<RevCommit> commitsLog = null;
@@ -73,53 +87,29 @@ public class GitAPI {
 		
        
         for (RevCommit commit : commitsLog) {
-        	//System.out.println(commit.getName());
         	commits.add(new CommitInfo(commit.getName(), new Date(commit.getCommitTime() * 1000L), commit.getFullMessage()));
         }
                     
         return commits;
 	}
 	
-	private Git getRepository() throws IOException, GitAPIException {
-		String projectDir = "output/" + projectName.toLowerCase();
-		
-		if (!Files.exists(Paths.get(projectDir))) {
-			return Git.cloneRepository()
-					.setURI(gitUrl + projectName + ".git")
-					.setDirectory(new File(projectDir))
-					.call();
-		} else {
-			try (Git git = Git.open(new File( projectDir + "/.git"))){
-				git.checkout().setName("master").call();
-				git.pull().call();
-				
-				return git;
-			}
-		}	
-	}
-	
-	public HashMap<String, ReleaseGit> getReleases() throws GitAPIException {
+	public Map<String, ReleaseGit> getReleases() throws GitAPIException, IOException {
 		HashMap<String, ReleaseGit> releases = new HashMap<>();
 		List<Ref> tags = git.tagList().call();
 		
 		RevWalk walk = new RevWalk(this.git.getRepository());
 		for (Ref refTag : tags) {
-			try {
+				String releaseName = refTag.getName().substring("refs/tags/".length());
 				RevCommit commit = walk.parseCommit(refTag.getObjectId());
-				RevTag revTag = walk.parseTag(refTag.getObjectId());
-				releases.put(revTag.getTagName(), new ReleaseGit(revTag.getTagName(), commit.getId()));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
+				releases.put(releaseName, new ReleaseGit(releaseName, commit.getId()));
 		}
+			
 		walk.close();
 		
 		return releases;
 	}
 	
-	public List<DiffData> diff(ObjectId startCommit, ObjectId endCommit) throws MissingObjectException, IncorrectObjectTypeException, GitAPIException, IOException {
+	public List<DiffData> diff(ObjectId startCommit, ObjectId endCommit) throws GitAPIException, IOException {
 		
 		DiffCommand command = git.diff()
 				.setNewTree(this.retriveTreeParser(endCommit))
@@ -135,11 +125,11 @@ public class GitAPI {
 		return diff;
 	}
 	
-	public List<DiffData> diff(ObjectId endCommit) throws MissingObjectException, IncorrectObjectTypeException, GitAPIException, IOException {
+	public List<DiffData> diff(ObjectId endCommit) throws GitAPIException, IOException {
 		return this.diff(null, endCommit);
 	}
 	
-	public List<RevCommit> listCommits(ObjectId startRelease, ObjectId endRelease) throws NoHeadException, MissingObjectException, IncorrectObjectTypeException, GitAPIException {
+	public List<RevCommit> listCommits(ObjectId startRelease, ObjectId endRelease) throws MissingObjectException, IncorrectObjectTypeException, GitAPIException {
 		LogCommand logCommand = this.git.log();
 		logCommand = (startRelease != null) ? logCommand.addRange(startRelease, endRelease) : logCommand.add(endRelease);
 		
@@ -151,22 +141,11 @@ public class GitAPI {
 		return commits;
 	}
 	
-	public List<RevCommit> listCommits(ObjectId endRelease) throws NoHeadException, MissingObjectException, IncorrectObjectTypeException, GitAPIException {
+	public List<RevCommit> listCommits(ObjectId endRelease) throws MissingObjectException, IncorrectObjectTypeException, GitAPIException {
 		return this.listCommits(null, endRelease);
 	}
-
 	
-	public void printDiff(DiffEntry diff) throws IOException {
-		ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-		
-		DiffFormatter formatter = new DiffFormatter(byteStream);
-        formatter.setRepository(this.git.getRepository());
-        formatter.format(diff);
-        
-        System.out.println(byteStream.toString());
-	}
-	
-	private CanonicalTreeParser retriveTreeParser(ObjectId releaseId) throws MissingObjectException, IncorrectObjectTypeException, IOException {
+	private CanonicalTreeParser retriveTreeParser(ObjectId releaseId) throws IOException {
 		RevWalk walk = new RevWalk(this.git.getRepository());
 		RevCommit commit = walk.parseCommit(releaseId);
 		ObjectId treeId = commit.getTree().getId();
@@ -174,9 +153,9 @@ public class GitAPI {
 		return new CanonicalTreeParser( null, reader, treeId);
 	}
 	
-	public List<String> listFiles(String commitHash) throws RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException {
+	public List<String> listFiles(String commitHash) throws GitAPIException {
 		git.checkout().setName(commitHash).call();
-		return this.lsFiles("output/" + this.projectName + "/");
+		return this.lsFiles(this.repoDir);
 		
 	}
 	
@@ -185,16 +164,13 @@ public class GitAPI {
 		File dir = new File(startDir);
         File[] files = dir.listFiles();
 
-        if (files != null && files.length > 0) {
-            for (File file : files) {
-                // Check if the file is a directory
-                if (file.isDirectory()) {
-                    // We will not print the directory name, just use it as a new
-                    // starting point to list files from
-                	
-                	List<String> relativeFiles = this.lsFiles(file.getAbsolutePath());
-                    for (String relativeFile : relativeFiles) {
-                    	if (relativeFile.indexOf(".java") != -1) 
+        for (File file : files) {
+        	// Check if the file is a directory
+            if (file.isDirectory()) {
+            	// We will not print the directory name, just use it as a new
+                // starting point to list files from
+                List<String> relativeFiles = this.lsFiles(file.getAbsolutePath());
+                    for (String relativeFile : relativeFiles) { 
                     		fileNames.add(file.getName() + "/" + relativeFile);
                     }
                 } else {
@@ -203,7 +179,6 @@ public class GitAPI {
                 		fileNames.add(file.getName());
                 }
             }
-        }
         return fileNames;
     }
 	

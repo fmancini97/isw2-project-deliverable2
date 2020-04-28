@@ -4,7 +4,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import it.uniroma2.ing.isw2.fmancini.swanalytics.DiffData;
 
-public class Churn extends Metric {
+public class Churn extends RevisionMetric {
 	
 	public Churn() {
 		super();
@@ -22,7 +22,7 @@ public class Churn extends Metric {
 
 
 	@Override
-	public Metric duplicate() {
+	public RevisionMetric duplicate() {
 		return new Churn(this);
 	}
 	

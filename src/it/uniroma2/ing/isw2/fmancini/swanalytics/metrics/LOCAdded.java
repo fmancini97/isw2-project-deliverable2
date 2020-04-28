@@ -4,7 +4,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import it.uniroma2.ing.isw2.fmancini.swanalytics.DiffData;
 
-public class LOCAdded extends Metric {
+public class LOCAdded extends RevisionMetric {
 
 	
 	public LOCAdded() {
@@ -21,7 +21,7 @@ public class LOCAdded extends Metric {
 	}
 
 	@Override
-	public Metric duplicate() {
+	public RevisionMetric duplicate() {
 		return new LOCAdded(this);
 	}
 

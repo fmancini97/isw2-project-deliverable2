@@ -1,40 +1,52 @@
 package it.uniroma2.ing.isw2.fmancini.swanalytics;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import it.uniroma2.ing.isw2.fmancini.swanalytics.metrics.Metric;
+import it.uniroma2.ing.isw2.fmancini.swanalytics.csv.CSVable;
+import it.uniroma2.ing.isw2.fmancini.swanalytics.metrics.LOC;
+import it.uniroma2.ing.isw2.fmancini.swanalytics.metrics.RevisionMetric;
 
 public class ClassData implements CSVable {
 	private String name;
 	private Release release;
-	private List<Metric> metrics;
+	private List<RevisionMetric> revisionMetrics;
+	private LOC size;
 	
 	
-	public ClassData(String name, Release release, List<Metric> metrics) {
+	public ClassData(String name, Release release, List<RevisionMetric> metrics) {
 		super();
 		this.name = name;
 		this.release = release;
-		this.metrics = metrics;
+		this.revisionMetrics = metrics;
+		this.size = new LOC();
 	}
 	
 	public ClassData(ClassData source) {
 		this.name = source.name;
 		this.release = source.release;
-		this.metrics = new ArrayList<>();
-		for (Metric metric : source.metrics) {
-			this.metrics.add(metric.duplicate());
+		this.revisionMetrics = new ArrayList<>();
+		for (RevisionMetric metric : source.revisionMetrics) {
+			this.revisionMetrics.add(metric.duplicate());
+		}
+		this.size = new LOC(source.size);
+	}
+	
+	public void updateRevisionMeasurments(RevCommit commit, DiffData diff) {
+		for (RevisionMetric metric : revisionMetrics) {
+			metric.updateMeasurment(commit, diff);
 		}
 	}
 	
-	
-	
-	public void updateMeasurments(RevCommit commit, DiffData diff) {
-		for (Metric metric : metrics) {
-			metric.updateMeasurment(commit, diff);
+	public void computeFileMeasurment(String baseDir) throws IOException {
+		if (!baseDir.substring(baseDir.length() - 1).equals("/")) {
+			baseDir = baseDir + "/";
 		}
+		this.size.measure(baseDir + this.name);
+		
 	}
 
 	public String getName() {
@@ -50,31 +62,29 @@ public class ClassData implements CSVable {
 		return release;
 	}
 
-	public List<Metric> getMetrics() {
-		return metrics;
+	public List<RevisionMetric> getMetrics() {
+		return revisionMetrics;
 	}
 
 	@Override
 	public String toCSV() {
-		String metricValues = "";
-		for (Metric metric : this.metrics) {
-			metricValues = metricValues + metric.toCSV() + ",";
+		StringBuilder metricValues = new StringBuilder();
+		
+		for (RevisionMetric metric : this.revisionMetrics) {
+			metricValues.append(',');
+			metricValues.append(metric.toCSV());
 		}
-		
-		metricValues = metricValues.substring(0, metricValues.length() - 1);
-		
-		return this.release.toCSV() + "," + this.name + "," + metricValues; 
+		return this.release.toCSV() + "," + this.name + "," + this.size.toCSV() + metricValues.toString(); 
 	}
 
 	@Override
 	public String getHeader() {
-		String metricNames = "";
-		for (Metric metric : this.metrics) {
-			metricNames = metricNames + metric.getHeader() + ",";
+		StringBuilder metricNames = new StringBuilder();
+		for (RevisionMetric metric : this.revisionMetrics) {
+			metricNames.append(',');
+			metricNames.append(metric.getHeader());
 		}
 		
-		metricNames = metricNames.substring(0, metricNames.length() - 1);
-		
-		return this.release.getHeader() + ",Name," + metricNames;
+		return this.release.getHeader() + ",Name," + this.size.getHeader() + metricNames.toString();
 	}
 }

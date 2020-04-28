@@ -1,7 +1,5 @@
 package it.uniroma2.ing.isw2.fmancini.swanalytics;
 
-import java.util.Date;
-
 import org.eclipse.jgit.lib.ObjectId;
 
 public class ReleaseGit {

@@ -1,17 +1,14 @@
 package it.uniroma2.ing.isw2.fmancini.swanalytics;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeSet;
+import java.util.SortedSet;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.diff.DiffEntry;
-import org.eclipse.jgit.diff.DiffFormatter;
-import org.json.JSONException;
 
 import it.uniroma2.ing.isw2.fmancini.swanalytics.metrics.MetricType;
 
@@ -19,17 +16,44 @@ public class ProjectAnalyzer {
 	private GitAPI git;
 	private JiraAPI jira;
 	private String projectName;
+	private String baseDir;
+	private String gitReleaseRegex;
+	private List<Release> releases;
 	
 	
-	public ProjectAnalyzer(String projectName) {
+	public ProjectAnalyzer(String projectName, String baseDir) {
 		this.projectName = projectName;
+		if (!baseDir.substring(baseDir.length() - 1).contains("/")) {
+			this.baseDir = baseDir + "/";
+		} else {
+			this.baseDir = baseDir;
+		}
+	}
+	
+	public void init(String gitReleaseRegex) throws IOException, GitAPIException {
+		// Check if the directory output exists
+		File outputDirectory = new File(this.baseDir);
+	    if (!outputDirectory.exists()){
+	        outputDirectory.mkdir();
+	    }
+	    
+	    // Check if the project directory exist
+	    File projectDirectory = new File(this.baseDir + this.projectName.toLowerCase());
+	    if (!projectDirectory.exists()) {
+	    	projectDirectory.mkdir();
+	    }
+
+		this.git = new GitAPI(this.projectName, this.baseDir);
+		this.git.init();
+		this.jira = new JiraAPI(this.projectName);
+		this.releases = null;
+		this.gitReleaseRegex = gitReleaseRegex;
 	}
 	
 	public void init() throws IOException, GitAPIException {
-		this.git = new GitAPI(this.projectName);
-		this.git.init();
-		this.jira = new JiraAPI(this.projectName);
+		this.init("%s");
 	}
+
 	
 	public Map<String,Ticket> analyzeTickets(IssueType issueType) throws IOException, GitAPIException {
 		Map<String,Ticket> tickets = null;
@@ -54,47 +78,34 @@ public class ProjectAnalyzer {
 		}
 	}
 	
-	public void listReleasesDiff(Release start, Release end) {
-		List<DiffData> diffs;
-		try {
-			diffs = this.git.diff(start.getReleaseId(), end.getReleaseId());
-			for (DiffData diff : diffs) {
-				System.out.println("OldPath: " + diff.getOldPath());
-				System.out.println("NewPath: " + diff.getNewPath());
-				System.out.println("ChangeType: " + diff.getChangeType().toString());
-				System.out.println("AddedLines: " + diff.getAddedLines());
-				System.out.println("DeletedLines: " + diff.getDeletedLines());
-				System.out.println();
-			}
-		} catch (GitAPIException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public List<Release> getReleases() throws IOException, ParseException, GitAPIException{
+		if (this.releases == null) {
+			this.retiveReleases();
+		}	
+		return this.releases;
+	
+	}	
+	
+	public MeasurmentIterator analyzeClasses(List<MetricType> metrics) throws IOException, ParseException, GitAPIException {
+		if (this.releases == null) {
+			this.retiveReleases();
+		}	
 		
+		return new MeasurmentIterator(this.releases.iterator(), metrics ,this.git);
 	}
 	
-	public List<Release> getReleases(String gitReleasePath) throws JSONException, IOException, ParseException, GitAPIException{
-		List<Release> releases = new ArrayList<>();
-		TreeSet<ReleaseJira> releasesJira = this.jira.retriveReleases();
-		HashMap<String, ReleaseGit> releasesGit = this.git.getReleases();
+	private void retiveReleases() throws IOException, ParseException, GitAPIException {
+		this.releases = new ArrayList<>();
+		SortedSet<ReleaseJira> releasesJira = this.jira.retriveReleases();
+		Map<String, ReleaseGit> releasesGit = this.git.getReleases();
 		Integer sequentialId = 1;
-		for (ReleaseJira releaseJira : releasesJira) {
-			ReleaseGit releaseGit = releasesGit.get(String.format(gitReleasePath,releaseJira.getName()));
+		for (ReleaseJira releaseJira : releasesJira) {			
+			ReleaseGit releaseGit = releasesGit.get(String.format(this.gitReleaseRegex,releaseJira.getName()));
 			if (releaseGit != null) {
 				releases.add(new Release(sequentialId, releaseJira.getReleaseDate(), releaseJira.getName(), releaseGit.getName(), releaseGit.getReleaseId()));
 				sequentialId++;
 			}
-		}	
-		return releases;
-	
-	}	
-	
-	public MeasurmentIterator analyzeClasses(List<MetricType> metrics) throws JSONException, IOException, ParseException, GitAPIException {
-		return new MeasurmentIterator(this.getReleases().iterator(), metrics ,this.git);
-	}
-	
-	public List<Release> getReleases() throws JSONException, IOException, ParseException, GitAPIException {
-		return this.getReleases("%s");
+		}
 	}
 
 }

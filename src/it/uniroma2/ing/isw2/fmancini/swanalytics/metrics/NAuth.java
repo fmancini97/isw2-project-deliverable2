@@ -7,7 +7,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import it.uniroma2.ing.isw2.fmancini.swanalytics.DiffData;
 
 
-public class NAuth extends Metric {
+public class NAuth extends RevisionMetric {
 	HashSet<String> auths;
 	
 	public NAuth() {
@@ -31,7 +31,7 @@ public class NAuth extends Metric {
 	}
 
 	@Override
-	public Metric duplicate() {
+	public RevisionMetric duplicate() {
 		return new NAuth(this);
 	}	
 	

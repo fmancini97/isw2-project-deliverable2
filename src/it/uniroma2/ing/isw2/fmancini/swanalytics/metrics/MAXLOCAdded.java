@@ -4,7 +4,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import it.uniroma2.ing.isw2.fmancini.swanalytics.DiffData;
 
-public class MAXLOCAdded extends Metric {
+public class MAXLOCAdded extends RevisionMetric {
 
 	public MAXLOCAdded() {
 		super();
@@ -22,7 +22,7 @@ public class MAXLOCAdded extends Metric {
 	}
 
 	@Override
-	public Metric duplicate() {
+	public RevisionMetric duplicate() {
 		return new MAXLOCAdded(this);
 	}
 	
