@@ -1,17 +1,47 @@
 [{
 	"project-name": "OPENJPA",
 	"tasks": ["TICKETS", "CLASSES", "VERSIONS"],
-	"analysis-types": ["BUGS"],
+	"analysis-types": ["BUGS", "TICKET","NEWFEATURES"],
 },
 {
 	"project-name": "MAHOUT",
 	"tasks": ["TICKETS"],
-	"analysis-types": ["BUGS"],
+	"analysis-types": ["BUGS", "TICKET","NEWFEATURES"],
 },
 {
 	"project-name": "BOOKKEEPER",
 	"tasks": ["TICKETS", "CLASSES", "VERSIONS"],
-	"analysis-types": ["BUGS"],
+	"analysis-types": ["BUGS", "TICKET","NEWFEATURES"],
+	"git-release-regex": "release-%s"
+},
+{
+	"project-name": "AVRO",
+	"tasks": ["TICKETS", "CLASSES", "VERSIONS"],
+	"analysis-types": ["BUGS", "TICKET","NEWFEATURES"],
+	"git-release-regex": "release-%s"
+},
+{
+	"project-name": "STORM",
+	"tasks": ["TICKETS", "CLASSES", "VERSIONS"],
+	"analysis-types": ["BUGS", "TICKET","NEWFEATURES"],
+	"git-release-regex": "v%s"
+},
+{
+	"project-name": "ZOOKEEPER",
+	"tasks": ["TICKETS", "CLASSES", "VERSIONS"],
+	"analysis-types": ["BUGS", "TICKET","NEWFEATURES"],
+	"git-release-regex": "release-%s"
+},
+{
+	"project-name": "SYNCOPE",
+	"tasks": ["TICKETS", "CLASSES", "VERSIONS"],
+	"analysis-types": ["BUGS", "TICKET","NEWFEATURES"],
+	"git-release-regex": "syncope-%s"
+},
+{
+	"project-name": "TAJO",
+	"tasks": ["TICKETS", "CLASSES", "VERSIONS"],
+	"analysis-types": ["BUGS", "TICKET","NEWFEATURES"],
 	"git-release-regex": "release-%s"
 }
 ]

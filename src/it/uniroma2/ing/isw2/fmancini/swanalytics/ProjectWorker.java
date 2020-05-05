@@ -22,6 +22,7 @@ public class ProjectWorker extends Thread {
 	private static String baseDir = "output/";
 	private static String savingCSV = "Generating CSV file";
 	private static String csvSaved = "CSV file generated successfully";
+	private static String csvLogTemplate = "[{0}] {1}";
 
 	
 	private String projectName;
@@ -49,29 +50,29 @@ public class ProjectWorker extends Thread {
 	public ProjectWorker(String projectName) {
 		this.projectName = projectName;
 		this.projectAnalyzer = new ProjectAnalyzer(projectName, baseDir);
-		this.logger = Logger.getLogger(ProjectWorker.class.getSimpleName() + "-" + projectName);
+		this.logger = Logger.getLogger(ProjectWorker.class.getSimpleName() + "." + projectName);
 		this.issueTypes = null;
 		this.workerTasks = null;
 		this.gitReleaseRegex = "%s";
 	}
 	
 	protected void analyzeVersions() {
-		this.logger.log(Level.INFO, "Looking for {0} releases", this.projectName);
+		this.logger.log(Level.INFO, "[{0}] Looking for {0} releases", this.projectName);
 		
 		List<Release> releases = null;
 		try {
 			releases = projectAnalyzer.getReleases();
 		} catch (IOException | ParseException | GitAPIException e) {
-			this.logger.log(Level.WARNING, "Error while looking for {0} releases: {1}", new Object[] {this.projectName, e.getMessage()});
+			this.logger.log(Level.WARNING, "[{0}] Error while looking for {0} releases: {1}", new Object[] {this.projectName, e.getMessage()});
 			return;
 		}
 		
 		if (releases == null) {
-			logger.log(Level.SEVERE, "Error while looking for {0} releases: ProjectAnalyzer.getReleases() returned a null value", this.projectName);
+			logger.log(Level.SEVERE, "[{0}] Error while looking for {0} releases: ProjectAnalyzer.getReleases() returned a null value", this.projectName);
 			return;
 		}
 		
-		logger.info(savingCSV);
+		logger.log(Level.INFO, csvLogTemplate, new Object[] {this.projectName, savingCSV});
 
 		try {
 			CSVDAO releasesCSV = new CSVDAO(baseDir + projectName.toLowerCase() + "/" + projectName.toLowerCase() + "_versions");
@@ -80,16 +81,16 @@ public class ProjectWorker extends Thread {
 			releasesCSV.close();
 
 		} catch (IOException | CSVIncorrectNumValues e) {
-			this.logger.log(Level.WARNING, "Error while saving releases: {0}", e.getMessage());
+			this.logger.log(Level.WARNING, "[{0}] Error while saving releases: {1}", new Object[] {this.projectName, e.getMessage()});
 			return;
 		} 
 		
-		logger.info(csvSaved);
+		logger.log(Level.INFO, csvLogTemplate, new Object[] {this.projectName, csvSaved});
 	}
 	
 	protected void analyzeClasses() {
 		
-		this.logger.log(Level.INFO, "Analyzing {0} classes", this.projectName);
+		this.logger.log(Level.INFO, "[{0}] Analyzing {0} classes", this.projectName);
 					
 		MeasurmentIterator measurmentIterator = null;
 		try {
@@ -97,17 +98,17 @@ public class ProjectWorker extends Thread {
 			metrics.addAll(Arrays.asList(MetricType.values()));
 			measurmentIterator = projectAnalyzer.analyzeClasses(metrics);
 		} catch (IOException | ParseException | GitAPIException e) {
-			this.logger.log(Level.WARNING, "Error while analyzing {0} classes: {1}", new Object[] {this.projectName, e.getMessage()});
+			this.logger.log(Level.WARNING, "[{0}] Error while analyzing {0} classes: {1}", new Object[] {this.projectName, e.getMessage()});
 			return;
 		}
 		
 		if (measurmentIterator == null) {
-			logger.log(Level.SEVERE, "Error while looking for {0} releases: ProjectAnalyzer.analyzeClasses() returned a null value", this.projectName);
+			logger.log(Level.SEVERE, "[{0}] Error while looking for {0} releases: ProjectAnalyzer.analyzeClasses() returned a null value", this.projectName);
 			return;
 		}
 		
 		
-		logger.info(savingCSV);
+		logger.log(Level.INFO, csvLogTemplate, new Object[] {this.projectName, savingCSV});
 
 		
 		CSVDAO metricCSV = new CSVDAO(baseDir + projectName.toLowerCase() + "/" + projectName.toLowerCase() + "_classes");
@@ -119,36 +120,36 @@ public class ProjectWorker extends Thread {
 			metricCSV.close();
 			
 		} catch ( ClassNotFoundException | InstantiationException | IllegalAccessException | GitAPIException | InterruptedException e) {
-			this.logger.log(Level.WARNING, "Error while analyzing {0} classes: {1}", new Object[] {this.projectName, e.getMessage()});
+			this.logger.log(Level.WARNING, "[{0}] Error while analyzing {0} classes: {1}", new Object[] {this.projectName, e.getMessage()});
 			Thread.currentThread().interrupt();
 			return;
 		} catch (IOException | CSVIncorrectNumValues e)  {
-			this.logger.log(Level.WARNING, "Error while saving classes: {0}", e.getMessage());
+			this.logger.log(Level.WARNING, "[{0}] Error while saving classes: {1}", new Object[] {this.projectName, e.getMessage()});
 			return;
 		} 
 		
 		
-		logger.info(csvSaved);
+		logger.log(Level.INFO, csvLogTemplate, new Object[] {this.projectName, csvSaved});
 	}
 	
 	protected void analyzeTickets() {
 		for (IssueType issueType : this.issueTypes) {
-			logger.log(Level.INFO, "Looking for issues of type {0} for the project {1}", new Object[] {issueType, projectName});
+			logger.log(Level.INFO, "[{1}] Looking for issues of type {0} for the project {1}", new Object[] {issueType, projectName});
 			Map<String, Ticket> tickets;
 			
 			try {
 				tickets = projectAnalyzer.analyzeTickets(issueType);
 			} catch (IOException | GitAPIException e) {
-				this.logger.log(Level.WARNING, "Error while looking for issues of type {0}: {1}", new Object[] {issueType, e.getMessage()});
+				this.logger.log(Level.WARNING, "[{0}] Error while looking for issues of type {1}: {2}", new Object[] {this.projectName, issueType, e.getMessage()});
 			return;
 			}
 				
 			if (tickets == null) {
-				logger.log(Level.SEVERE, "Error while looking for {0} releases: ProjectAnalyzer.analyzeTickets() returned a null value", this.projectName);
+				logger.log(Level.SEVERE, "[{0}] Error while looking for {0} releases: ProjectAnalyzer.analyzeTickets() returned a null value", this.projectName);
 				return;
 			}
 				
-			logger.info(savingCSV);
+			logger.log(Level.INFO, csvLogTemplate, new Object[] {this.projectName, savingCSV});
 				
 			try {
 				CSVDAO releasesCSV = new CSVDAO(baseDir + projectName.toLowerCase() + "/" + projectName.toLowerCase() + "_" + issueType.toString());
@@ -158,11 +159,11 @@ public class ProjectWorker extends Thread {
 				releasesCSV.close();
 					
 			} catch (IOException | CSVIncorrectNumValues e) {
-				this.logger.log(Level.WARNING, "Error while saving tickets: {0}", e.getMessage());
+				this.logger.log(Level.WARNING, "[{0}] Error while saving tickets: {1}", new Object[] {this.projectName, e.getMessage()});
 				return;
 
 			}
-			logger.info(csvSaved);
+			logger.log(Level.INFO, csvLogTemplate, new Object[] {this.projectName, csvSaved});
 		}
 	}
 	
@@ -172,7 +173,7 @@ public class ProjectWorker extends Thread {
 		try {
 			projectAnalyzer.init(this.gitReleaseRegex);
 		} catch (IOException | GitAPIException e) {
-			this.logger.log(Level.WARNING, "Error while initializing analysis: {0}", e.getMessage());
+			this.logger.log(Level.WARNING, "[{0}] Error while initializing analysis: {1}", new Object[] {this.projectName, e.getMessage()});
 
 		}
 		
@@ -182,10 +183,12 @@ public class ProjectWorker extends Thread {
 				task.invoke(this, (Object[]) null);			
 				
 			} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-				logger.log(Level.SEVERE, "Error while executing {0} task: {1}", new Object[] {workerTask.getMethod(), e.getMessage()});
+				logger.log(Level.SEVERE, "[{0}] Error while executing {1} task: {2}", new Object[] {this.projectName, workerTask.getMethod(), e.getMessage()});
 
 			}
 		}
+		
+		logger.log(Level.INFO, "[{0}] Analysis completed!", this.projectName);
 		
 		
 	}

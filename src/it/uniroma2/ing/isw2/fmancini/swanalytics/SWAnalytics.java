@@ -38,17 +38,20 @@ public class SWAnalytics {
 					workerTasks.add(workerTask);
 				}
 					
-			}	            
-		 	
-			for (ProjectWorker workerTask : workerTasks) {
-				workerTask.start();
-			}
+			}	 
 			
-			for (ProjectWorker workerTask : workerTasks) {
-				workerTask.join();
-			}
+			Integer i = 0;
+			Integer j = 0;
 			
-			 	
+			while(i < workerTasks.size()) {
+				if (j-i < 5 && j < workerTasks.size()) {
+					workerTasks.get(j).start();
+					j++;
+				} else {
+					workerTasks.get(i).join();
+					i++;
+				}
+			}	
 	          
 		} catch (IOException | ParseException e) {
 			logger.log(Level.WARNING, "Error while retrieving configuration: {0}", e.getMessage());
@@ -56,6 +59,10 @@ public class SWAnalytics {
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 		}
+		
+		logger.log(Level.INFO, "All the analysis are completed!");
+		
+		System.exit(0);
 	
 	}
 	
