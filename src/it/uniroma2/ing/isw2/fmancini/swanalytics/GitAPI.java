@@ -153,8 +153,8 @@ public class GitAPI {
 		return new CanonicalTreeParser( null, reader, treeId);
 	}
 	
-	public List<String> listFiles(String commitHash) throws GitAPIException {
-		git.checkout().setName(commitHash).call();
+	public List<String> listFiles(String identifier) throws GitAPIException {
+		git.checkout().setName(identifier).call();
 		return this.lsFiles(this.repoDir);
 		
 	}

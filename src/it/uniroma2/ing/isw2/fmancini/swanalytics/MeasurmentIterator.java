@@ -84,7 +84,7 @@ public class MeasurmentIterator {
 		// Listing classes
 		this.temporaryClasses = this.actualReleaseClasses;
 		this.actualReleaseClasses = new TreeMap<>();
-		List<String> classNames = this.git.listFiles(this.actualRelease.getReleaseSha());
+		List<String> classNames = this.git.listFiles(this.actualRelease.getGitName());
 			// Creating classData for the new actual version
 			for (String className : classNames) {
 				List<RevisionMetric> metrics = new ArrayList<>();
