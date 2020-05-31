@@ -2,7 +2,7 @@ package it.uniroma2.ing.isw2.fmancini.swanalytics.metrics;
 
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import it.uniroma2.ing.isw2.fmancini.swanalytics.DiffData;
+import it.uniroma2.ing.isw2.fmancini.swanalytics.git.DiffData;
 
 public class Churn extends RevisionMetric {
 	

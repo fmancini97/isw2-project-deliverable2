@@ -1,4 +1,4 @@
-package it.uniroma2.ing.isw2.fmancini.swanalytics;
+package it.uniroma2.ing.isw2.fmancini.swanalytics.jira;
 
 public enum IssueType {
 	TICKET("in%20(standardIssueTypes()%2C%20subTaskIssueTypes())"),

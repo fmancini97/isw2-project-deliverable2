@@ -1,10 +1,12 @@
-package it.uniroma2.ing.isw2.fmancini.swanalytics;
+package it.uniroma2.ing.isw2.fmancini.swanalytics.classanalysis;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ObjectId;
@@ -13,12 +15,15 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import it.uniroma2.ing.isw2.fmancini.swanalytics.metrics.RevisionMetric;
 import it.uniroma2.ing.isw2.fmancini.swanalytics.metrics.RevisionMetricFactory;
+import it.uniroma2.ing.isw2.fmancini.swanalytics.git.DiffData;
+import it.uniroma2.ing.isw2.fmancini.swanalytics.git.GitAPI;
 import it.uniroma2.ing.isw2.fmancini.swanalytics.metrics.MetricType;
 
 public class MeasurmentIterator {
 	private Iterator<Release> releases;
 	private Release previousRelease;
 	private Release actualRelease;
+	private Map<String,TreeSet<Integer>> buggyClasses;
 	private GitAPI git;
 	private List<MetricType> metricTypes;
 	private TreeMap<String,ClassData> temporaryClasses;
@@ -26,11 +31,12 @@ public class MeasurmentIterator {
 
 	
 
-	public MeasurmentIterator(Iterator<Release> releases, List<MetricType> metricTypes,GitAPI git) {
+	public MeasurmentIterator(Iterator<Release> releases, List<MetricType> metricTypes, Map<String,TreeSet<Integer>> buggyClasses, GitAPI git) {
 		this.releases = releases;
 		this.previousRelease = null;
 		this.actualRelease = null;
 		this.metricTypes = metricTypes;
+		this.buggyClasses = buggyClasses;
 		this.git = git;
 		this.temporaryClasses = null;
 		this.actualReleaseClasses = new TreeMap<>();
@@ -63,6 +69,12 @@ public class MeasurmentIterator {
 		}
 		List<FileAnalysisThread> fileAnalysisThreads = new ArrayList<>();
 		for (ClassData classData : this.actualReleaseClasses.values()) {
+			if (this.buggyClasses.containsKey(classData.getName())) {
+				TreeSet<Integer> affectedVersions = this.buggyClasses.get(classData.getName());
+				if (affectedVersions.contains(this.actualRelease.getId())) 
+					classData.setBugginess(true);
+			}
+			
 			FileAnalysisThread fileAnalysisThread = new FileAnalysisThread(classData, this.git.getRepoDir());
 			fileAnalysisThread.start();
 			fileAnalysisThreads.add(fileAnalysisThread);

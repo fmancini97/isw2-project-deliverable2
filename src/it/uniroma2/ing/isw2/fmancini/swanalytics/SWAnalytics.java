@@ -5,6 +5,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import it.uniroma2.ing.isw2.fmancini.swanalytics.jira.IssueType;
+
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -69,7 +71,8 @@ public class SWAnalytics {
 	private static ProjectWorker genWorker(JSONObject projectConf, Logger logger) {
 		ProjectWorker workerTask = null;
 		String projectName = "";
-		String gitReleaseRegex = "";
+		String gitReleaseRegex;
+		Integer releasesPercentage;
 		
 		projectName = (String) projectConf.get("project-name");
 		if (projectName == null || projectName.equals("")) {
@@ -115,18 +118,35 @@ public class SWAnalytics {
 		 	}
 	 	}
 	 	
-	 	gitReleaseRegex = (String) projectConf.get("git-release-regex");
-	 	
-	 	if (gitReleaseRegex == null) {
-	 		gitReleaseRegex = "%s";
-	 	}	
+	 	gitReleaseRegex = getReleaseRegex(projectConf);
+	 	releasesPercentage = getReleasesPercentage(projectConf);
 	 	
 	 	workerTask = new ProjectWorker(projectName);
 	 	workerTask.setIssueTypes(issueTypes);
 	 	workerTask.setGitReleaseRegex(gitReleaseRegex);
 	 	workerTask.setWorkerTasks(tasks);
+	 	workerTask.setReleasesPercentage(releasesPercentage);
 	 	
 	 	return workerTask;
+	}
+	
+	private static String getReleaseRegex(JSONObject projectConf) {
+		String gitReleaseRegex = (String) projectConf.get("git-release-regex");
+	 	
+	 	if (gitReleaseRegex == null) {
+	 		gitReleaseRegex = "%s";
+	 	}
+	 	return gitReleaseRegex;
+	 	
+	}
+	
+	private static Integer getReleasesPercentage(JSONObject projectConf) {
+		Long releasesPercentage = (Long) projectConf.get("releases-percentage");
+	 	
+	 	if (releasesPercentage == null) {
+	 		releasesPercentage = Long.valueOf(100);
+	 	}
+	 	return releasesPercentage.intValue();
 	}
 	
 	

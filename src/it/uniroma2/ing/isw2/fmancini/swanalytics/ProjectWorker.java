@@ -12,9 +12,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.json.JSONException;
 
+import it.uniroma2.ing.isw2.fmancini.swanalytics.classanalysis.ClassData;
+import it.uniroma2.ing.isw2.fmancini.swanalytics.classanalysis.MeasurmentIterator;
+import it.uniroma2.ing.isw2.fmancini.swanalytics.classanalysis.Release;
 import it.uniroma2.ing.isw2.fmancini.swanalytics.csv.CSVDAO;
 import it.uniroma2.ing.isw2.fmancini.swanalytics.csv.CSVIncorrectNumValues;
+import it.uniroma2.ing.isw2.fmancini.swanalytics.jira.IssueType;
+import it.uniroma2.ing.isw2.fmancini.swanalytics.jira.Ticket;
 import it.uniroma2.ing.isw2.fmancini.swanalytics.metrics.MetricType;
 
 public class ProjectWorker extends Thread {
@@ -29,6 +35,23 @@ public class ProjectWorker extends Thread {
 	private ProjectAnalyzer projectAnalyzer;
 	private Logger logger;
 	private List<IssueType> issueTypes;
+	private List<WorkerTask> workerTasks;
+	private String gitReleaseRegex;
+	private Integer releasesPercentage;
+	
+	
+	
+	public ProjectWorker(String projectName) {
+		this.projectName = projectName;
+		this.projectAnalyzer = new ProjectAnalyzer(projectName, baseDir);
+		this.logger = Logger.getLogger(ProjectWorker.class.getSimpleName() + "." + projectName);
+		this.issueTypes = null;
+		this.workerTasks = null;
+		this.gitReleaseRegex = "%s";
+		this.releasesPercentage = 100;
+		
+	}
+	
 	public void setIssueTypes(List<IssueType> issueTypes) {
 		this.issueTypes = issueTypes;
 	}
@@ -40,22 +63,11 @@ public class ProjectWorker extends Thread {
 	public void setGitReleaseRegex(String gitReleaseRegex) {
 		this.gitReleaseRegex = gitReleaseRegex;
 	}
-
-
-	private List<WorkerTask> workerTasks;
-	private String gitReleaseRegex;
 	
-	
-	
-	public ProjectWorker(String projectName) {
-		this.projectName = projectName;
-		this.projectAnalyzer = new ProjectAnalyzer(projectName, baseDir);
-		this.logger = Logger.getLogger(ProjectWorker.class.getSimpleName() + "." + projectName);
-		this.issueTypes = null;
-		this.workerTasks = null;
-		this.gitReleaseRegex = "%s";
+	public void setReleasesPercentage(Integer releasesPercentage) {
+		this.releasesPercentage = releasesPercentage;
 	}
-	
+
 	protected void analyzeVersions() {
 		this.logger.log(Level.INFO, "[{0}] Looking for {0} releases", this.projectName);
 		
@@ -96,7 +108,7 @@ public class ProjectWorker extends Thread {
 		try {
 			List<MetricType> metrics = new ArrayList<>();
 			metrics.addAll(Arrays.asList(MetricType.values()));
-			measurmentIterator = projectAnalyzer.analyzeClasses(metrics);
+			measurmentIterator = projectAnalyzer.analyzeClasses(metrics, this.releasesPercentage);
 		} catch (IOException | ParseException | GitAPIException e) {
 			this.logger.log(Level.WARNING, "[{0}] Error while analyzing {0} classes: {1}", new Object[] {this.projectName, e.getMessage()});
 			return;
@@ -139,9 +151,9 @@ public class ProjectWorker extends Thread {
 			
 			try {
 				tickets = projectAnalyzer.analyzeTickets(issueType);
-			} catch (IOException | GitAPIException e) {
+			} catch (IOException | GitAPIException | JSONException e) {
 				this.logger.log(Level.WARNING, "[{0}] Error while looking for issues of type {1}: {2}", new Object[] {this.projectName, issueType, e.getMessage()});
-			return;
+				return;
 			}
 				
 			if (tickets == null) {
@@ -152,7 +164,7 @@ public class ProjectWorker extends Thread {
 			logger.log(Level.INFO, csvLogTemplate, new Object[] {this.projectName, savingCSV});
 				
 			try {
-				CSVDAO releasesCSV = new CSVDAO(baseDir + projectName.toLowerCase() + "/" + projectName.toLowerCase() + "_" + issueType.toString());
+				CSVDAO releasesCSV = new CSVDAO(baseDir + projectName.toLowerCase() + "/" + projectName.toLowerCase() + "_" + issueType.toString().toLowerCase());
 
 				releasesCSV.open();
 				releasesCSV.saveToCSV(new ArrayList<>(tickets.values()));

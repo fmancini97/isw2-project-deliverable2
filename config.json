@@ -2,46 +2,53 @@
 	"project-name": "OPENJPA",
 	"tasks": ["TICKETS", "CLASSES", "VERSIONS"],
 	"analysis-types": ["BUGS", "TICKET","NEWFEATURES"],
+	"releases-percentage": 50
 },
 {
 	"project-name": "MAHOUT",
 	"tasks": ["TICKETS"],
-	"analysis-types": ["BUGS", "TICKET","NEWFEATURES"],
+	"analysis-types": ["BUGS", "TICKET","NEWFEATURES"]
 },
 {
 	"project-name": "BOOKKEEPER",
 	"tasks": ["TICKETS", "CLASSES", "VERSIONS"],
 	"analysis-types": ["BUGS", "TICKET","NEWFEATURES"],
-	"git-release-regex": "release-%s"
+	"git-release-regex": "release-%s",
+    "releases-percentage": 50
 },
 {
 	"project-name": "AVRO",
 	"tasks": ["TICKETS", "CLASSES", "VERSIONS"],
 	"analysis-types": ["BUGS", "TICKET","NEWFEATURES"],
-	"git-release-regex": "release-%s"
+	"git-release-regex": "release-%s",
+	"releases-percentage": 50
 },
 {
 	"project-name": "STORM",
 	"tasks": ["TICKETS", "CLASSES", "VERSIONS"],
 	"analysis-types": ["BUGS", "TICKET","NEWFEATURES"],
-	"git-release-regex": "v%s"
+	"git-release-regex": "v%s",
+	"releases-percentage": 50
 },
 {
 	"project-name": "ZOOKEEPER",
 	"tasks": ["TICKETS", "CLASSES", "VERSIONS"],
 	"analysis-types": ["BUGS", "TICKET","NEWFEATURES"],
-	"git-release-regex": "release-%s"
+	"git-release-regex": "release-%s",
+	"releases-percentage": 50
 },
 {
 	"project-name": "SYNCOPE",
 	"tasks": ["TICKETS", "CLASSES", "VERSIONS"],
 	"analysis-types": ["BUGS", "TICKET","NEWFEATURES"],
-	"git-release-regex": "syncope-%s"
+	"git-release-regex": "syncope-%s",
+	"releases-percentage": 50
 },
 {
 	"project-name": "TAJO",
 	"tasks": ["TICKETS", "CLASSES", "VERSIONS"],
 	"analysis-types": ["BUGS", "TICKET","NEWFEATURES"],
-	"git-release-regex": "release-%s"
+	"git-release-regex": "release-%s",
+	"releases-percentage": 50
 }
 ]

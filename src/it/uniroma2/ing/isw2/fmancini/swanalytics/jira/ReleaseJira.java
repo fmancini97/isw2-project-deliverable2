@@ -1,4 +1,4 @@
-package it.uniroma2.ing.isw2.fmancini.swanalytics;
+package it.uniroma2.ing.isw2.fmancini.swanalytics.jira;
 
 import java.util.Date;
 

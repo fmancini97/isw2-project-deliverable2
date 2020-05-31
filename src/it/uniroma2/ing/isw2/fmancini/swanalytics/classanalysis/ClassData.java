@@ -1,4 +1,4 @@
-package it.uniroma2.ing.isw2.fmancini.swanalytics;
+package it.uniroma2.ing.isw2.fmancini.swanalytics.classanalysis;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,6 +7,7 @@ import java.util.List;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import it.uniroma2.ing.isw2.fmancini.swanalytics.csv.CSVable;
+import it.uniroma2.ing.isw2.fmancini.swanalytics.git.DiffData;
 import it.uniroma2.ing.isw2.fmancini.swanalytics.metrics.LOC;
 import it.uniroma2.ing.isw2.fmancini.swanalytics.metrics.RevisionMetric;
 
@@ -15,6 +16,7 @@ public class ClassData implements CSVable {
 	private Release release;
 	private List<RevisionMetric> revisionMetrics;
 	private LOC size;
+	private boolean isBuggy;
 	
 	
 	public ClassData(String name, Release release, List<RevisionMetric> metrics) {
@@ -23,6 +25,7 @@ public class ClassData implements CSVable {
 		this.release = release;
 		this.revisionMetrics = metrics;
 		this.size = new LOC();
+		this.isBuggy = false;
 	}
 	
 	public ClassData(ClassData source) {
@@ -65,6 +68,10 @@ public class ClassData implements CSVable {
 	public List<RevisionMetric> getMetrics() {
 		return revisionMetrics;
 	}
+	
+	public void setBugginess(boolean isBuggy) {
+		this.isBuggy = isBuggy;
+	}
 
 	@Override
 	public String toCSV() {
@@ -74,7 +81,8 @@ public class ClassData implements CSVable {
 			metricValues.append(',');
 			metricValues.append(metric.toCSV());
 		}
-		return this.release.toCSV() + "," + this.name + "," + this.size.toCSV() + metricValues.toString(); 
+		String bugginess = (this.isBuggy) ? "Yes" : "No";
+		return this.release.toCSV() + "," + this.name + "," + this.size.toCSV() + metricValues.toString() + "," + bugginess; 
 	}
 
 	@Override
@@ -85,6 +93,6 @@ public class ClassData implements CSVable {
 			metricNames.append(metric.getHeader());
 		}
 		
-		return this.release.getHeader() + ",Name," + this.size.getHeader() + metricNames.toString();
+		return this.release.getHeader() + ",Name," + this.size.getHeader() + metricNames.toString() + ",Buggy";
 	}
 }

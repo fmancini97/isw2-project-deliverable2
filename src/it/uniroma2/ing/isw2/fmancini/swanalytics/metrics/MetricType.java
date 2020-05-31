@@ -6,6 +6,7 @@ public enum MetricType {
 	LOCADDED("LOCAdded"),
 	AVGLOCADDED("AVGLOCAdded"),
 	MAXLOCADDED("MAXLOCAdded"),
+	LOCTOUCHED("LOCTouched"),
 	CHURN("Churn"),
 	AVGCHURN("AVGChurn"),
 	MAXCHURN("MAXChurn");

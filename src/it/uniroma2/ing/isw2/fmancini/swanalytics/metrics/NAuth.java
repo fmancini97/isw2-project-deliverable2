@@ -4,7 +4,7 @@ import java.util.HashSet;
 
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import it.uniroma2.ing.isw2.fmancini.swanalytics.DiffData;
+import it.uniroma2.ing.isw2.fmancini.swanalytics.git.DiffData;
 
 
 public class NAuth extends RevisionMetric {

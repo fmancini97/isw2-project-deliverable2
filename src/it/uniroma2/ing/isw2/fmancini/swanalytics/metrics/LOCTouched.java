@@ -4,25 +4,26 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import it.uniroma2.ing.isw2.fmancini.swanalytics.git.DiffData;
 
-public class NumRevisions extends RevisionMetric {
+public class LOCTouched extends RevisionMetric {
 
-	public NumRevisions() {
+	public LOCTouched() {
 		super();
 	}
 	
-	private NumRevisions(NumRevisions source) {
+	private LOCTouched(LOCTouched source) {
 		super(source);
 	}
-
+	
+	
 	@Override
 	public void updateMeasurment(RevCommit commit, DiffData diff) {
-		super.setMeasurment(super.getMeasurment() + 1);
-		
+		super.setMeasurment(super.getMeasurment() + diff.getAddedLines() + diff.getDeletedLines());
+
 	}
 
 	@Override
 	public RevisionMetric duplicate() {
-		return new NumRevisions(this);
+		return new LOCTouched(this);
 	}
-	
+
 }

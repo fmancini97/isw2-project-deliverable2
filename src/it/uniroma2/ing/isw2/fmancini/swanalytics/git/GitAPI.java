@@ -1,7 +1,7 @@
 /**
  * 
  */
-package it.uniroma2.ing.isw2.fmancini.swanalytics;
+package it.uniroma2.ing.isw2.fmancini.swanalytics.git;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -13,7 +13,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.eclipse.jgit.api.DiffCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.LogCommand;
@@ -45,6 +44,8 @@ public class GitAPI {
 	private String repoDir;
 	
 	private String baseDir;
+	
+	private List<CommitInfo> commits;
 	
 	
 	public GitAPI(String projectName, String baseDir) {
@@ -78,19 +79,22 @@ public class GitAPI {
 		return repoDir;
 	}
 
-	List<CommitInfo> getCommits() throws GitAPIException {
+	public List<CommitInfo> getCommits() throws GitAPIException {
+		if (this.commits != null) {
+			return this.commits;
+		}
 		
-		List<CommitInfo> commits = new ArrayList<>();  
+		this.commits = new ArrayList<>();  
         Iterable<RevCommit> commitsLog = null;
-		
+        
+		this.git.checkout().setName("master").call();
 		commitsLog = git.log().call();
-		
        
         for (RevCommit commit : commitsLog) {
-        	commits.add(new CommitInfo(commit.getName(), new Date(commit.getCommitTime() * 1000L), commit.getFullMessage()));
+        	this.commits.add(new CommitInfo(commit.getId(), new Date(commit.getCommitTime() * 1000L), commit.getFullMessage()));
         }
                     
-        return commits;
+        return this.commits;
 	}
 	
 	public Map<String, ReleaseGit> getReleases() throws GitAPIException, IOException {
@@ -134,11 +138,11 @@ public class GitAPI {
 		logCommand = (startRelease != null) ? logCommand.addRange(startRelease, endRelease) : logCommand.add(endRelease);
 		
 		Iterable<RevCommit> commitPath = logCommand.call();
-		List<RevCommit> commits = new ArrayList<>();
+		List<RevCommit> releaseCommits = new ArrayList<>();
 		for (RevCommit commit : commitPath) {
-			commits.add(0, commit);
+			releaseCommits.add(0, commit);
 		}
-		return commits;
+		return releaseCommits;
 	}
 	
 	public List<RevCommit> listCommits(ObjectId endRelease) throws MissingObjectException, IncorrectObjectTypeException, GitAPIException {

@@ -1,22 +1,24 @@
-package it.uniroma2.ing.isw2.fmancini.swanalytics;
+package it.uniroma2.ing.isw2.fmancini.swanalytics.git;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.eclipse.jgit.lib.ObjectId;
+
 public class CommitInfo {
-	private String id;
+	private ObjectId id;
 	private Date date;
 	private String message;
 	
-	public CommitInfo(String id, Date date, String message) {
+	public CommitInfo(ObjectId id, Date date, String message) {
 		super();
 		this.id = id;
 		this.date = date;
 		this.message = message;
 	}
 	
-	public String getId() {
+	public ObjectId getId() {
 		return id;
 	}
 	public Date getDate() {
