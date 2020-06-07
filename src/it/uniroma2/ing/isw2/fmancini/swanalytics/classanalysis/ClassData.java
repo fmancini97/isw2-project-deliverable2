@@ -1,6 +1,7 @@
 package it.uniroma2.ing.isw2.fmancini.swanalytics.classanalysis;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,11 +45,8 @@ public class ClassData implements CSVable {
 		}
 	}
 	
-	public void computeFileMeasurment(String baseDir) throws IOException {
-		if (!baseDir.substring(baseDir.length() - 1).equals("/")) {
-			baseDir = baseDir + "/";
-		}
-		this.size.measure(baseDir + this.name);
+	public void computeFileMeasurment(InputStream file) throws IOException {
+		this.size.measure(file);
 		
 	}
 

@@ -1,7 +1,6 @@
 package it.uniroma2.ing.isw2.fmancini.swanalytics.metrics;
 
 import java.io.BufferedInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -15,8 +14,8 @@ public class LOC extends Metric{
 		super(source);
 	}
 	
-	public void measure(String filePath) throws IOException {
-		try (InputStream is = new BufferedInputStream(new FileInputStream(filePath))) {
+	public void measure(InputStream file) throws IOException {
+		try (InputStream is = new BufferedInputStream(file)) {
 	        byte[] c = new byte[1024];
 
 	        int readChars = is.read(c);

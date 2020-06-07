@@ -7,8 +7,8 @@ import java.util.List;
 public class Bug {
 	private String name;
 	private Date createdAt;
+	private Integer injectedVersion;
 	private Integer openingVersion;
-	private Integer affectedVersion;
 	private Integer fixedVersion;
 	private List<String> affectedClasses;
 	
@@ -23,7 +23,7 @@ public class Bug {
 	public Bug(String name, Date createdAt,Integer openingVersion, Integer fixedVersion, Integer affectedVersions,
 			List<String> affectedClasses) {
 		this(name, createdAt, openingVersion, fixedVersion);
-		this.affectedVersion = affectedVersions;
+		this.injectedVersion = affectedVersions;
 		this.affectedClasses = affectedClasses;
 	}
 
@@ -39,8 +39,8 @@ public class Bug {
 		return openingVersion;
 	}
 
-	public Integer getAffectedVersion() {
-		return affectedVersion;
+	public Integer getInjectedVersion() {
+		return injectedVersion;
 	}
 
 	public Integer getFixedVersion() {
@@ -52,8 +52,8 @@ public class Bug {
 	}
 	
 	
-	public void setAffectedVersion(Integer affectedVersions) {
-		this.affectedVersion = affectedVersions;
+	public void setInjectedVersion(Integer affectedVersions) {
+		this.injectedVersion = affectedVersions;
 	}
 
 	public void appendAffectedClasses(List<String> classes) {

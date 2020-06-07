@@ -1,6 +1,7 @@
 package it.uniroma2.ing.isw2.fmancini.swanalytics.classanalysis;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -54,20 +55,27 @@ public class MeasurmentIterator {
 		
 		this.updateActualReleaseClasses();
 		this.updateTemporaryClasses();
-		
+			
 		ObjectId previousReleaseId = (this.previousRelease != null) ? this.previousRelease.getReleaseId() : null;
 		List<RevCommit> commits = this.git.listCommits(previousReleaseId, this.actualRelease.getReleaseId());
 		
-		ObjectId previousCommit = previousReleaseId;
 		for (RevCommit commit : commits) {
-			List<DiffData> diffs = this.git.diff(previousCommit, commit.getId()); 
+			List<DiffData> diffs = (commit.getParentCount() != 0) ? this.git.diff(commit.getParent(0).getId(), commit.getId()) : this.git.diff(commit.getId());
 			
 			for (DiffData diff : diffs) {
 				this.processDiff(commit, diff);	
 			}
-			previousCommit = commit;
 		}
+		
+		this.analyzeFiles();
+		
+		classDatas = new ArrayList<>(this.actualReleaseClasses.values());
+		return classDatas;	
+	}
+	
+	private void analyzeFiles() throws IOException, InterruptedException {
 		List<FileAnalysisThread> fileAnalysisThreads = new ArrayList<>();
+		
 		for (ClassData classData : this.actualReleaseClasses.values()) {
 			if (this.buggyClasses.containsKey(classData.getName())) {
 				TreeSet<Integer> affectedVersions = this.buggyClasses.get(classData.getName());
@@ -75,7 +83,7 @@ public class MeasurmentIterator {
 					classData.setBugginess(true);
 			}
 			
-			FileAnalysisThread fileAnalysisThread = new FileAnalysisThread(classData, this.git.getRepoDir());
+			FileAnalysisThread fileAnalysisThread = new FileAnalysisThread(classData, this.git.getFile(this.actualRelease, classData.getName()));
 			fileAnalysisThread.start();
 			fileAnalysisThreads.add(fileAnalysisThread);
 		}
@@ -86,17 +94,13 @@ public class MeasurmentIterator {
 				throw fileAnalysisThread.getError();
 			}
 		}
-		
-		
-		classDatas = new ArrayList<>(this.actualReleaseClasses.values());
-		return classDatas;	
 	}
 	
-	private void updateActualReleaseClasses() throws ClassNotFoundException, InstantiationException, IllegalAccessException, GitAPIException {
+	private void updateActualReleaseClasses() throws ClassNotFoundException, InstantiationException, IllegalAccessException, IOException {
 		// Listing classes
 		this.temporaryClasses = this.actualReleaseClasses;
 		this.actualReleaseClasses = new TreeMap<>();
-		List<String> classNames = this.git.listFiles(this.actualRelease.getGitName());
+		List<String> classNames = this.git.listFiles(this.actualRelease.getReleaseSha());
 			// Creating classData for the new actual version
 			for (String className : classNames) {
 				List<RevisionMetric> metrics = new ArrayList<>();
@@ -206,16 +210,12 @@ public class MeasurmentIterator {
 	
 	protected class FileAnalysisThread extends Thread{
 		ClassData classData;
-		String baseDir;
+		InputStream fileData;
 		IOException error;
 		
-		public FileAnalysisThread(ClassData classData, String baseDir) {
+		public FileAnalysisThread(ClassData classData, InputStream fileData) {
 			this.classData = classData;
-			if (baseDir.isEmpty()) {
-				this.baseDir = ".";
-			}else {
-				this.baseDir = baseDir;
-			}
+			this.fileData = fileData;
 			this.error = null;
 		}
 		
@@ -227,7 +227,7 @@ public class MeasurmentIterator {
 		@Override
 		public void run() {
 			try {
-				this.classData.computeFileMeasurment(baseDir);
+				this.classData.computeFileMeasurment(this.fileData);
 			} catch (IOException e) {
 				this.error = e;
 			}

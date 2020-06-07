@@ -87,6 +87,8 @@ public class ProjectAnalyzer {
 	public Map<String,TreeSet<Integer>> getBuggyClasses() throws IOException, ParseException, GitAPIException {
 		
 		SortedSet<Bug> sortedBugs = this.getBugs();
+		
+		
 		return this.findAffectedClasses(sortedBugs);
 	}
 	
@@ -98,27 +100,26 @@ public class ProjectAnalyzer {
 		
 		
 		// Find opening version, fixed version and classes
-		for (Integer i = 0; i < commits.size(); i++) {
-			CommitInfo actualCommit = commits.get(i);
-			CommitInfo nextCommit = (i + 1 >= commits.size()) ? null : commits.get(i + 1);
-			sortedBugs.addAll(this.findBugFixs(actualCommit, nextCommit, indexeedBugs));
+		for (CommitInfo commit: commits) {
+			sortedBugs.addAll(this.findBugFixs(commit, indexeedBugs));
 		}
 		return sortedBugs;
 	}
 	
-	private SortedSet<Bug> findBugFixs(CommitInfo actualCommit, CommitInfo nextCommit, HashMap<String, Bug> indexeedBugs) throws IOException, ParseException, GitAPIException {
+	private SortedSet<Bug> findBugFixs(CommitInfo commit, HashMap<String, Bug> indexeedBugs) throws IOException, ParseException, GitAPIException {
 		Map<String, JiraBug> jiraBugs = this.jira.getBugs();
-		List<String> bugNames = actualCommit.findTicketIds(this.projectName + "-");
+		List<String> bugNames = commit.findTicketIds(this.projectName + "-");
 		TreeSet<Bug> sortedBugs = new TreeSet<>((o1,o2) -> o1.getCreatedAt().compareTo(o2.getCreatedAt()));
 		for (String bugName : bugNames) {
+			
 			JiraBug jiraBug = jiraBugs.get(bugName);
 			if (jiraBug != null) {
 				
-				List<String> classes = this.getAffectedClasses((nextCommit != null) ? nextCommit.getId() : null, actualCommit.getId());
+				List<String> classes = this.getAffectedClasses(commit.getParentId(), commit.getId());
 				Bug bug = indexeedBugs.get(bugName);
 				if (bug == null) {
 					Release openingVersion = this.findRelease(jiraBug.getCreated());
-					Release fixedVersion = this.findRelease(actualCommit.getDate());
+					Release fixedVersion = this.findRelease(commit.getDate());
 					if (openingVersion == null || fixedVersion == null || openingVersion.getId() > fixedVersion.getId()) continue;
 					bug = new Bug(bugName, jiraBug.getCreated(),openingVersion.getId(), fixedVersion.getId());
 					indexeedBugs.put(bugName, bug);
@@ -127,6 +128,8 @@ public class ProjectAnalyzer {
 				bug.appendAffectedClasses(classes);
 			}
 		}
+		
+		
 		return sortedBugs;
 	}
 	
@@ -159,12 +162,12 @@ public class ProjectAnalyzer {
 			Release injectedVersion = this.findInjectededVerison(affectedVersions, releasesMap);
 					
 			if (injectedVersion == null || injectedVersion.getId() > bug.getOpeningVersion()) {
-				bug.setAffectedVersion(affectedVersionCalculator.computeAffectedVersion(bug.getOpeningVersion(), bug.getFixedVersion()));
+				bug.setInjectedVersion(affectedVersionCalculator.computeAffectedVersion(bug.getOpeningVersion(), bug.getFixedVersion()));
 			} else {
-				bug.setAffectedVersion(injectedVersion.getId());
+				bug.setInjectedVersion(injectedVersion.getId());
 				affectedVersionCalculator.updateProportionValue(injectedVersion.getId(), bug.getOpeningVersion(), bug.getFixedVersion());
 			}		
-			List<Integer> affectedVersionss = IntStream.rangeClosed(bug.getAffectedVersion(), bug.getFixedVersion()).boxed().collect(Collectors.toList());
+			List<Integer> affectedVersionss = IntStream.rangeClosed(bug.getInjectedVersion(), bug.getFixedVersion()).boxed().collect(Collectors.toList());
 			for (String affectedClass: bug.getAffectedClasses()) {
 				TreeSet<Integer> classAffectedVefrisons = null;
 				if (classBugginess.containsKey(affectedClass)) {
@@ -176,6 +179,7 @@ public class ProjectAnalyzer {
 				classAffectedVefrisons.addAll(affectedVersionss);
 			}
 		}
+		
 		return classBugginess;
 	}
 	

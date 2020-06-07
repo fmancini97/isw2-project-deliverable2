@@ -6,6 +6,7 @@ package it.uniroma2.ing.isw2.fmancini.swanalytics.git;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -23,11 +24,17 @@ import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.ObjectLoader;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
+import org.eclipse.jgit.treewalk.TreeWalk;
+import org.eclipse.jgit.treewalk.filter.PathFilter;
+
+import it.uniroma2.ing.isw2.fmancini.swanalytics.classanalysis.Release;
 
 /**
  * @author fmancini
@@ -91,7 +98,8 @@ public class GitAPI {
 		commitsLog = git.log().call();
        
         for (RevCommit commit : commitsLog) {
-        	this.commits.add(new CommitInfo(commit.getId(), new Date(commit.getCommitTime() * 1000L), commit.getFullMessage()));
+        	ObjectId parentId = (commit.getParentCount() != 0) ? commit.getParent(0).getId() : null;
+        	this.commits.add(new CommitInfo(commit.getId(), new Date(commit.getCommitTime() * 1000L), commit.getFullMessage(), parentId));
         }
                     
         return this.commits;
@@ -105,6 +113,7 @@ public class GitAPI {
 		for (Ref refTag : tags) {
 				String releaseName = refTag.getName().substring("refs/tags/".length());
 				RevCommit commit = walk.parseCommit(refTag.getObjectId());
+				commit.getParent(0);
 				releases.put(releaseName, new ReleaseGit(releaseName, commit.getId()));
 		}
 			
@@ -157,35 +166,51 @@ public class GitAPI {
 		return new CanonicalTreeParser( null, reader, treeId);
 	}
 	
-	public List<String> listFiles(String identifier) throws GitAPIException {
-		git.checkout().setName(identifier).call();
-		return this.lsFiles(this.repoDir);
+	public List<String> listFiles(String identifier) throws IOException {
+		List<String> files = new ArrayList<>();
 		
+		try (RevWalk revWalk = new RevWalk(this.git.getRepository()); TreeWalk treeWalk = new TreeWalk(this.git.getRepository())) {
+			ObjectId commitId = ObjectId.fromString(identifier);
+			RevCommit commit = revWalk.parseCommit(commitId);
+			ObjectId treeId = commit.getTree();
+
+			treeWalk.reset(treeId);
+			treeWalk.setRecursive(true);
+			while (treeWalk.next()) {
+				String path = treeWalk.getPathString();
+			    if (path.contains(".java")) {
+			    	files.add(path);
+			    }
+			    
+			}
+			revWalk.dispose();
+		}
+		return files;	
 	}
 	
-	private List<String> lsFiles(String startDir) {
-        List<String> fileNames = new ArrayList<>();
-		File dir = new File(startDir);
-        File[] files = dir.listFiles();
+	public InputStream getFile(Release release, String filePath) throws IOException {
+		try (RevWalk revWalk = new RevWalk(this.git.getRepository()); TreeWalk treeWalk = new TreeWalk(this.git.getRepository())) {
+			ObjectId commitId = ObjectId.fromString(release.getReleaseSha());
 
-        for (File file : files) {
-        	// Check if the file is a directory
-            if (file.isDirectory()) {
-            	// We will not print the directory name, just use it as a new
-                // starting point to list files from
-                List<String> relativeFiles = this.lsFiles(file.getAbsolutePath());
-                    for (String relativeFile : relativeFiles) { 
-                    		fileNames.add(file.getName() + "/" + relativeFile);
-                    }
-                } else {
-                    // We can use .length() to get the file size
-                	if (file.getName().indexOf(".java") != -1) 
-                		fileNames.add(file.getName());
-                }
+            RevCommit commit = revWalk.parseCommit(commitId);
+            // and using commit's tree find the path
+            RevTree tree = commit.getTree();
+
+            // now try to find a specific file
+            treeWalk.addTree(tree);
+            treeWalk.setRecursive(true);
+            treeWalk.setFilter(PathFilter.create(filePath));
+            if (!treeWalk.next()) {
+            	throw new IllegalStateException("Did not find expected file " + filePath);
             }
-        return fileNames;
-    }
-	
+
+            ObjectId objectId = treeWalk.getObjectId(0);
+            ObjectLoader loader = this.git.getRepository().open(objectId);
+
+            revWalk.dispose();
+            return loader.openStream();
+        }
+	}
 	
 	private DiffData parseDiffEntry(DiffEntry diff) throws IOException {
 		

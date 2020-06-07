@@ -10,12 +10,14 @@ public class CommitInfo {
 	private ObjectId id;
 	private Date date;
 	private String message;
+	private ObjectId parentId;
 	
-	public CommitInfo(ObjectId id, Date date, String message) {
+	public CommitInfo(ObjectId id, Date date, String message, ObjectId parentId) {
 		super();
 		this.id = id;
 		this.date = date;
 		this.message = message;
+		this.parentId = parentId;
 	}
 	
 	public ObjectId getId() {
@@ -28,6 +30,10 @@ public class CommitInfo {
 		return message;
 	}
 	
+	public ObjectId getParentId() {
+		return parentId;
+	}
+
 	public List<String> findTicketIds(String ticketPath) {
 		List<String> ticketIds= new ArrayList<>();
 		
