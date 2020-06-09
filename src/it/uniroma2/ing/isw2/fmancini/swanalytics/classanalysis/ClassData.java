@@ -80,7 +80,7 @@ public class ClassData implements CSVable {
 			metricValues.append(metric.toCSV());
 		}
 		String bugginess = (this.isBuggy) ? "Yes" : "No";
-		return this.release.toCSV() + "," + this.name + "," + this.size.toCSV() + metricValues.toString() + "," + bugginess; 
+		return this.release.getId() + "," + this.name + "," + this.size.toCSV() + metricValues.toString() + "," + bugginess; 
 	}
 
 	@Override
@@ -91,6 +91,6 @@ public class ClassData implements CSVable {
 			metricNames.append(metric.getHeader());
 		}
 		
-		return this.release.getHeader() + ",Name," + this.size.getHeader() + metricNames.toString() + ",Buggy";
+		return "Version" + ",Name," + this.size.getHeader() + metricNames.toString() + ",Buggy";
 	}
 }
