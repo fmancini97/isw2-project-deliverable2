@@ -2,7 +2,7 @@ package it.uniroma2.ing.isw2.fmancini.swanalytics;
 
 public enum WorkerTask {
 	TICKETS("analyzeTickets"),
-	CLASSES("analyzeClasses"),
+	DATASET("generateDataset"),
 	VERSIONS("analyzeVersions");
 	
 	private final String taskMethod;

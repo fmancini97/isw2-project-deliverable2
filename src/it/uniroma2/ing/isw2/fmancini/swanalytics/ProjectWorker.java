@@ -100,9 +100,9 @@ public class ProjectWorker extends Thread {
 		logger.log(Level.INFO, csvLogTemplate, new Object[] {this.projectName, csvSaved});
 	}
 	
-	protected void analyzeClasses() {
+	protected void generateDataset() {
 		
-		this.logger.log(Level.INFO, "[{0}] Analyzing {0} classes", this.projectName);
+		this.logger.log(Level.INFO, "[{0}] Generating dataset...", this.projectName);
 					
 		MeasurmentIterator measurmentIterator = null;
 		try {
@@ -123,7 +123,7 @@ public class ProjectWorker extends Thread {
 		logger.log(Level.INFO, csvLogTemplate, new Object[] {this.projectName, savingCSV});
 
 		
-		CSVDAO metricCSV = new CSVDAO(baseDir + projectName.toLowerCase() + "/" + projectName.toLowerCase() + "_classes");
+		CSVDAO metricCSV = new CSVDAO(baseDir + projectName.toLowerCase() + "/" + projectName.toLowerCase() + "_dataset");
 		try {
 			metricCSV.open();
 			for (List<ClassData> classes = measurmentIterator.next(); classes != null; classes = measurmentIterator.next()) {
