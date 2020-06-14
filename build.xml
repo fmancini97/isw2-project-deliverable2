@@ -53,12 +53,12 @@
         <pathelement location="lib/commons-collections4-4.0.jar"/>
         <pathelement location="lib/commons-lang3-3.10.jar"/>
         <pathelement location="lib/weka.jar"/>
+        <pathelement location="lib/SMOTE.jar"/>
     </path>
     <target name="init">
         <mkdir dir="bin"/>
         <copy includeemptydirs="false" todir="bin">
             <fileset dir="src">
-                <exclude name="**/*.launch"/>
                 <exclude name="**/*.java"/>
             </fileset>
         </copy>

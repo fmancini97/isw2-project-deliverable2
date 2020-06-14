@@ -35,31 +35,44 @@ public class WalkForwardThread extends Thread{
 			ArffLoader loader = new ArffLoader();
 			loader.setSource(this.projectDataset);
 			Instances data = loader.getDataSet();//get instances object
-
+			Integer datasetSize = data.size();
 
 			Instances training = new Instances(data, 0);
 			Instances testing = new Instances(data, 0);
 
 
 			Integer version = 1;
+			Integer numDefectiveInTraining = 0;
+			Integer numDefectiveInTesting = 0;
 			List<RunResult> results = new ArrayList<>();
 			for(Instance instance: data) {
 
 				if (instance.value(0) == version) {
 					training.add(instance);
+					if (instance.value(instance.numAttributes() - 1) == 0) {
+						numDefectiveInTraining++;
+					}
 				} else if (instance.value(0) == (version + 1)) {
 					testing.add(instance);
+					if (instance.value(instance.numAttributes() - 1) == 0) {
+						numDefectiveInTesting++;
+					}
 				} else {
-					results.addAll(this.runAnalysis(training, testing, version));
+					results.addAll(this.runAnalysis(training, testing, version, datasetSize, numDefectiveInTraining, numDefectiveInTesting));
 
 					training.addAll(testing);
+					numDefectiveInTraining += numDefectiveInTesting;
 					testing = new Instances(data, 0);
+					numDefectiveInTesting = 0;
 					testing.add(instance);
+					if (instance.value(instance.numAttributes() - 1) == 0) {
+						numDefectiveInTesting++;
+					}
 					version++;
 				} 
 			}
 
-			results.addAll(this.runAnalysis(training, testing, version));
+			results.addAll(this.runAnalysis(training, testing, version, datasetSize, numDefectiveInTraining, numDefectiveInTesting));
 
 			walkForwardResult.open();
 			walkForwardResult.saveToCSV(results);
@@ -72,7 +85,7 @@ public class WalkForwardThread extends Thread{
 		this.logger.log(Level.INFO, "[{0}] Analysis completed", this.projectName.toUpperCase());
 	}
 
-	private List<RunResult> runAnalysis(Instances training, Instances testing, Integer numVersions) {
+	private List<RunResult> runAnalysis(Instances training, Instances testing, Integer numVersions, Integer datasetSize, Integer numDefectiveInTraining, Integer numDefectiveInTesting) {
 		List<RunResult> results = new ArrayList<>();
 		try {
 			//use a simple filter to remove a certain attribute	
@@ -98,18 +111,32 @@ public class WalkForwardThread extends Thread{
 			Instances testingSet = Filter.useFilter(testing, removeTesting);
 
 
-			int numAttr = trainingSet.numAttributes();
-
-			trainingSet.setClassIndex(numAttr - 1);
-			testingSet.setClassIndex(numAttr - 1);
+			
 
 			List<ClassifierThread> threads = new ArrayList<>();
-			for (Classifier classifier: Classifier.values()) {
-				this.logger.log(Level.INFO, "[{0}] Walkforward run number {1} with {2} classifier", new Object[] {this.projectName.toUpperCase(), numVersions, classifier});
-				ClassifierThread classifierRun = new ClassifierThread(classifier, numVersions, new Instances(trainingSet), new Instances(testingSet));
-				threads.add(classifierRun);
-				classifierRun.start();
+			for (Sampling sampling: Sampling.values()) {
+				for (Classifier classifier: Classifier.values()) {
+					this.logger.log(Level.INFO, "[{0}] Walkforward run number {1}: {2}, {3}, No feature selection", new Object[] {this.projectName.toUpperCase(), numVersions, classifier, sampling});
+					ClassifierThread classifierRun = new ClassifierThread(this.projectName, classifier, sampling, false, datasetSize);
+					classifierRun.setNumVersions(numVersions);
+					classifierRun.setTrainingSet(new Instances(trainingSet));
+					classifierRun.setTestingSet(new Instances(testingSet));
+					classifierRun.setNumDefectiveInTraining(numDefectiveInTraining);
+					classifierRun.setNumDefectiveInTesting(numDefectiveInTesting);
+					threads.add(classifierRun);
+					classifierRun.start();
+					
+					this.logger.log(Level.INFO, "[{0}] Walkforward run number {1}: {2}, {3}, Best first", new Object[] {this.projectName.toUpperCase(), numVersions, classifier, sampling});
+					classifierRun = new ClassifierThread(this.projectName, classifier, sampling, true, datasetSize);
+					classifierRun.setNumVersions(numVersions);
+					classifierRun.setTrainingSet(new Instances(trainingSet));
+					classifierRun.setTestingSet(new Instances(testingSet));
+					classifierRun.setNumDefectiveInTraining(numDefectiveInTraining);
+					classifierRun.setNumDefectiveInTesting(numDefectiveInTesting);
+					threads.add(classifierRun);
+					classifierRun.start();
 
+				}
 			}
 
 			for (ClassifierThread classifierRun : threads) {
