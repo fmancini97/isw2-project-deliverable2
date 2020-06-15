@@ -24,10 +24,11 @@ public class ClassifierThread extends Thread {
 	private Integer numDefectiveInTraining;
 	private Integer numDefectiveInTesting;
 	private Integer datasetSize;
+	private Integer classIndex;
 	private RunResult result;
 	private Exception error;
 	
-	public ClassifierThread(String projectName, Classifier classifier, Sampling sampling, boolean featureSelection, Integer datasetSize) {
+	public ClassifierThread(String projectName, Classifier classifier, Sampling sampling, boolean featureSelection, Integer datasetSize, Integer classIndex) {
 		super();
 		this.projectName = projectName;
 		this.classifier = classifier;
@@ -38,6 +39,7 @@ public class ClassifierThread extends Thread {
 		this.testingSet = null;
 		this.numDefectiveInTesting = 0;
 		this.numDefectiveInTraining = 0;
+		this.classIndex = classIndex;
 		this.datasetSize = datasetSize;
 		this.error = null;
 	}
@@ -118,13 +120,13 @@ public class ClassifierThread extends Thread {
 
 			eval.evaluateModel(abstractClassfier, this.testingSet); 
 			
-			Float truePositive = (float) eval.truePositiveRate(1);
-			Float falsePositive = (float) eval.falsePositiveRate(1);
-			Float trueNegative = (float) eval.trueNegativeRate(1);
-			Float falseNegative = (float) eval.falseNegativeRate(1);
-			Float precision = (float) eval.precision(1);
-			Float recall = (float) eval.recall(1);
-			Float auc = (float) eval.areaUnderROC(1);
+			Float truePositive = (float) eval.truePositiveRate(this.classIndex);
+			Float falsePositive = (float) eval.falsePositiveRate(this.classIndex);
+			Float trueNegative = (float) eval.trueNegativeRate(this.classIndex);
+			Float falseNegative = (float) eval.falseNegativeRate(this.classIndex);
+			Float precision = (float) eval.precision(this.classIndex);
+			Float recall = (float) eval.recall(this.classIndex);
+			Float auc = (float) eval.areaUnderROC(this.classIndex);
 			Float kappa = (float) eval.kappa();
 			
 			this.result = new RunResult(this.projectName, this.classifier,this.sampling, this.featureSelection);
