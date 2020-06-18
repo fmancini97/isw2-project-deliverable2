@@ -29,7 +29,7 @@ public class CSVDAO {
 		this.csvWriter.close();
 	}
 	
-	public void saveToCSV(List<? extends CSVable>... data) throws IOException, CSVIncorrectNumValues {
+	public void saveToCSV(List<List<? extends CSVable>> data) throws IOException, CSVIncorrectNumValues {
 		Integer length=0;
 		
 		// Check iterator sizes
@@ -61,7 +61,7 @@ public class CSVDAO {
 		csvWriter.flush();
 	}
 	
-	private void appendHeader(List<? extends CSVable>... data) throws IOException {
+	private void appendHeader(List<List<? extends CSVable>> data) throws IOException {
 		boolean isfirst = true;
 		for (List<? extends CSVable> value : data) {
 			if (isfirst) {

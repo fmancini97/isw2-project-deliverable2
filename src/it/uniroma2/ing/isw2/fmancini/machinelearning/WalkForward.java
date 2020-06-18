@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 
 import it.uniroma2.ing.isw2.fmancini.swanalytics.ProjectWorker;
 import it.uniroma2.ing.isw2.fmancini.swanalytics.csv.CSVDAO;
+import it.uniroma2.ing.isw2.fmancini.swanalytics.csv.CSVable;
 import weka.core.Attribute;
 import weka.core.Instance;
 import weka.core.Instances;
@@ -88,7 +89,9 @@ public class WalkForward {
 			results.addAll(WalkForward.runAnalysis(projectName,training, testing, version, datasetSize, numDefectiveInTraining, numDefectiveInTesting));
 
 			walkForwardResult.open();
-			walkForwardResult.saveToCSV(results);
+			List<List<? extends CSVable>> resultsData = new ArrayList<>();
+			resultsData.add(results);
+			walkForwardResult.saveToCSV(resultsData);
 			walkForwardResult.close();
 
 		} catch ( Exception e) {

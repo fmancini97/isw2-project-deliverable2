@@ -163,6 +163,7 @@ public class GitAPI {
 		RevCommit commit = walk.parseCommit(releaseId);
 		ObjectId treeId = commit.getTree().getId();
 		ObjectReader reader = git.getRepository().newObjectReader();
+		walk.close();
 		return new CanonicalTreeParser( null, reader, treeId);
 	}
 	
@@ -264,7 +265,7 @@ public class GitAPI {
          		 log = log.substring(index + 1);
          	 } 	 
     	}
-    	
+    	formatter.close();
     	
         return new DiffData(oldPath, newPath, changeType, addedLines, deletedLines);   
 	}

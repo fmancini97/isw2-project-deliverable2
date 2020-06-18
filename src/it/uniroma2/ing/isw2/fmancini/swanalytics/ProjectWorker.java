@@ -19,6 +19,7 @@ import it.uniroma2.ing.isw2.fmancini.swanalytics.classanalysis.MeasurmentIterato
 import it.uniroma2.ing.isw2.fmancini.swanalytics.classanalysis.Release;
 import it.uniroma2.ing.isw2.fmancini.swanalytics.csv.CSVDAO;
 import it.uniroma2.ing.isw2.fmancini.swanalytics.csv.CSVIncorrectNumValues;
+import it.uniroma2.ing.isw2.fmancini.swanalytics.csv.CSVable;
 import it.uniroma2.ing.isw2.fmancini.swanalytics.jira.IssueType;
 import it.uniroma2.ing.isw2.fmancini.swanalytics.jira.Ticket;
 import it.uniroma2.ing.isw2.fmancini.swanalytics.metrics.MetricType;
@@ -89,7 +90,9 @@ public class ProjectWorker extends Thread {
 		try {
 			CSVDAO releasesCSV = new CSVDAO(baseDir + projectName.toLowerCase() + "/" + projectName.toLowerCase() + "_versions");
 			releasesCSV.open();
-			releasesCSV.saveToCSV(releases);
+			List<List<? extends CSVable>> data = new ArrayList<>();
+			data.add(releases);
+			releasesCSV.saveToCSV(data);
 			releasesCSV.close();
 
 		} catch (IOException | CSVIncorrectNumValues e) {
@@ -127,7 +130,9 @@ public class ProjectWorker extends Thread {
 		try {
 			metricCSV.open();
 			for (List<ClassData> classes = measurmentIterator.next(); classes != null; classes = measurmentIterator.next()) {
-				metricCSV.saveToCSV(classes);
+				List<List<? extends CSVable>> data = new ArrayList<>();
+				data.add(classes);
+				metricCSV.saveToCSV(data);
 			}
 			metricCSV.close();
 			
@@ -167,7 +172,9 @@ public class ProjectWorker extends Thread {
 				CSVDAO releasesCSV = new CSVDAO(baseDir + projectName.toLowerCase() + "/" + projectName.toLowerCase() + "_" + issueType.toString().toLowerCase());
 
 				releasesCSV.open();
-				releasesCSV.saveToCSV(new ArrayList<>(tickets.values()));
+				List<List<? extends CSVable>> data = new ArrayList<>();
+				data.add(new ArrayList<>(tickets.values()));
+				releasesCSV.saveToCSV(data);
 				releasesCSV.close();
 					
 			} catch (IOException | CSVIncorrectNumValues e) {

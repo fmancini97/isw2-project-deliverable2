@@ -82,7 +82,7 @@ public class MeasurmentIterator {
 				if (affectedVersions.contains(this.actualRelease.getId())) 
 					classData.setBugginess(true);
 			}
-			
+						
 			FileAnalysisThread fileAnalysisThread = new FileAnalysisThread(classData, this.git.getFile(this.actualRelease, classData.getName()));
 			fileAnalysisThread.start();
 			fileAnalysisThreads.add(fileAnalysisThread);
