@@ -130,9 +130,7 @@ public class ProjectWorker extends Thread {
 		try {
 			metricCSV.open();
 			for (List<ClassData> classes = measurmentIterator.next(); classes != null; classes = measurmentIterator.next()) {
-				List<List<? extends CSVable>> data = new ArrayList<>();
-				data.add(classes);
-				metricCSV.saveToCSV(data);
+				this.saveToCSV(metricCSV, classes);
 			}
 			metricCSV.close();
 			
@@ -172,9 +170,7 @@ public class ProjectWorker extends Thread {
 				CSVDAO releasesCSV = new CSVDAO(baseDir + projectName.toLowerCase() + "/" + projectName.toLowerCase() + "_" + issueType.toString().toLowerCase());
 
 				releasesCSV.open();
-				List<List<? extends CSVable>> data = new ArrayList<>();
-				data.add(new ArrayList<>(tickets.values()));
-				releasesCSV.saveToCSV(data);
+				this.saveToCSV(releasesCSV, new ArrayList<>(tickets.values()));
 				releasesCSV.close();
 					
 			} catch (IOException | CSVIncorrectNumValues e) {
@@ -184,6 +180,12 @@ public class ProjectWorker extends Thread {
 			}
 			logger.log(Level.INFO, csvLogTemplate, new Object[] {this.projectName, csvSaved});
 		}
+	}
+	
+	private void saveToCSV(CSVDAO csvDAO, List<? extends CSVable> data) throws IOException, CSVIncorrectNumValues {
+		List<List<? extends CSVable>> list = new ArrayList<>();
+		list.add(data);
+		csvDAO.saveToCSV(list);
 	}
 	
 
