@@ -164,18 +164,17 @@ public class RunResult implements CSVable {
 	@Override
 	public String toCSV() {
 		String featureSelectionName = (this.featureSelection) ? "Best First" : "No selection";
-		
-		return this.projectName + "," + this.numVersions.toString() + "," + this.trainingPercentage.toString() + ","
-				+ this.defectiveInTrainingPercentage + "," + this.defectiveInTestingPercentage.toString() + ","
-				+ this.classifier.toString() + "," + this.sampling + "," + featureSelectionName + ","
-				+ this.truePositive.toString() + "," + this.falsePositive.toString() + ","
-				+ this.trueNegative.toString() + "," + this.falseNegative.toString() + ","
-				+ this.precision.toString() + "," + this.recall.toString() + "," 
-				+ this.auc.toString() + "," + this.kappa.toString();
+		return this.projectName + ";" + this.numVersions.toString() + ";" + this.trainingPercentage.toString() + ";"
+				+ this.defectiveInTrainingPercentage + ";" + this.defectiveInTestingPercentage.toString() + ";"
+				+ this.classifier.toString() + ";" + this.sampling + ";" + featureSelectionName + ";"
+				+ this.truePositive.toString() + ";" + this.falsePositive.toString() + ";"
+				+ this.trueNegative.toString() + ";" + this.falseNegative.toString() + ";"
+				+ this.precision.toString() + ";" + this.recall.toString() + ";" 
+				+ this.auc.toString() + ";" + this.kappa.toString();
 	}
 
 	@Override
 	public String getHeader() {
-		return "Dataset,#TrainingRelease,%Training,%Defective in training,%Defective in testing,Classifier,Sampling,Feature Selection,TP,FP,TN,FN,Precision,Recall,AUC,Kappa";
+		return "Dataset;#TrainingRelease;%Training;%Defective in training;%Defective in testing;Classifier;Sampling;Feature Selection;TP;FP;TN;FN;Precision;Recall;AUC;Kappa";
 	}
 }

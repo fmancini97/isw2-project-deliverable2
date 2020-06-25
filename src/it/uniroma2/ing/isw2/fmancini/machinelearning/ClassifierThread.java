@@ -100,11 +100,11 @@ public class ClassifierThread extends Thread {
 					fc.setClassifier(abstractClassfier);
 					// Check what is the majority class
 					Integer trainingSize = this.trainingSet.size();
-					Float sampleSizePercent =  ((this.numDefectiveInTraining > (trainingSize / 2.0)) ? (float) this.numDefectiveInTraining/trainingSize : (1 - ((float) this.numDefectiveInTraining/trainingSize)));
+					Double sampleSizePercent =  ((this.numDefectiveInTraining > ((double) trainingSize / 2.0)) ? (double) this.numDefectiveInTraining/trainingSize : (1 - ((double) this.numDefectiveInTraining/trainingSize)));
 					sampleSizePercent = sampleSizePercent * 100 * 2;
 					Resample resample = new Resample();
 					resample.setInputFormat(this.trainingSet);
-					opts = new String[]{ "-B", "1.0", "-Z", String.format("%.2f", sampleSizePercent)};
+					opts = new String[]{ "-B", "1.0", "-Z", String.format("%.2f", sampleSizePercent).replace(',', '.')};
 					resample.setOptions(opts);
 					fc.setFilter(resample);
 					abstractClassfier = fc;

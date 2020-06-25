@@ -49,11 +49,11 @@ public class Ticket implements CSVable{
 		
 		
 		String date = (this.resolvedDate != null) ? new SimpleDateFormat("yyyy-MM-dd").format(this.resolvedDate) : "";
-		return this.ticketID + "," + date;
+		return this.ticketID + ";" + date;
 	}
 
 	@Override
 	public String getHeader() {
-		return "Ticket ID,Resolved Date";
+		return "Ticket ID;Resolved Date";
 	}
 }

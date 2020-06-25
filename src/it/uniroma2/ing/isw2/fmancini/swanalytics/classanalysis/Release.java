@@ -24,7 +24,7 @@ public class Release implements CSVable {
 	}
 	
 	public String getHeader() {
-		return "id,releaseDate,jiraName,gitName,commitSha";
+		return "id;releaseDate;jiraName;gitName;commitSha";
 	}
 
 	public Integer getId() {
@@ -52,6 +52,6 @@ public class Release implements CSVable {
 	}
 	
 	public String toCSV() {
-		return id.toString() + "," + new SimpleDateFormat("yyyy-MM-dd").format(this.releaseDate) + "," + this.jiraName + "," + this.gitName + "," + this.getReleaseSha();
+		return id.toString() + ";" + new SimpleDateFormat("yyyy-MM-dd").format(this.releaseDate) + ";" + this.jiraName + ";" + this.gitName + ";" + this.getReleaseSha();
 	}
 }

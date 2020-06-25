@@ -20,6 +20,7 @@ public class CSV2Arff {
 		File projectClasses = new File(project.getAbsoluteFile(), project.getName() + "_dataset.csv");
 		if (projectClasses.exists()) {
 			CSVLoader loader = new CSVLoader();
+			loader.setFieldSeparator(";");
 		    loader.setSource(projectClasses);
 		    Instances data = loader.getDataSet();//get instances object
 
