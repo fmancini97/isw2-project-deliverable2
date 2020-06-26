@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import it.uniroma2.ing.isw2.fmancini.swanalytics.csv.CSVable;
+import it.uniroma2.ing.isw2.fmancini.csv.CSVable;
 import it.uniroma2.ing.isw2.fmancini.swanalytics.git.DiffData;
 import it.uniroma2.ing.isw2.fmancini.swanalytics.metrics.LOC;
 import it.uniroma2.ing.isw2.fmancini.swanalytics.metrics.RevisionMetric;

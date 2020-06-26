@@ -1,6 +1,6 @@
 package it.uniroma2.ing.isw2.fmancini.swanalytics.metrics;
 
-import it.uniroma2.ing.isw2.fmancini.swanalytics.csv.CSVable;
+import it.uniroma2.ing.isw2.fmancini.csv.CSVable;
 
 public abstract class Metric implements CSVable {
 

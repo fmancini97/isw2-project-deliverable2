@@ -5,7 +5,7 @@ import java.util.Date;
 
 import org.eclipse.jgit.lib.ObjectId;
 
-import it.uniroma2.ing.isw2.fmancini.swanalytics.csv.CSVable;
+import it.uniroma2.ing.isw2.fmancini.csv.CSVable;
 
 public class Release implements CSVable {
 	private Integer id;

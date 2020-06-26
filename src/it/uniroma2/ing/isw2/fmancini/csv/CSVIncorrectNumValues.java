@@ -1,4 +1,4 @@
-package it.uniroma2.ing.isw2.fmancini.swanalytics.csv;
+package it.uniroma2.ing.isw2.fmancini.csv;
 
 public class CSVIncorrectNumValues extends Exception {
 	/**

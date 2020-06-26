@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import it.uniroma2.ing.isw2.fmancini.csv.CSVDAO;
+import it.uniroma2.ing.isw2.fmancini.csv.CSVable;
 import it.uniroma2.ing.isw2.fmancini.swanalytics.ProjectWorker;
-import it.uniroma2.ing.isw2.fmancini.swanalytics.csv.CSVDAO;
-import it.uniroma2.ing.isw2.fmancini.swanalytics.csv.CSVable;
 import weka.core.Attribute;
 import weka.core.Instance;
 import weka.core.Instances;

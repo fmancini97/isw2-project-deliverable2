@@ -17,6 +17,7 @@ import java.util.Map;
 import org.eclipse.jgit.api.DiffCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.LogCommand;
+import org.eclipse.jgit.api.ListBranchCommand.ListMode;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
@@ -74,12 +75,24 @@ public class GitAPI {
 					.call();
 		} else {
 			try (Git gitRepo = Git.open(new File( repoDir + "/.git"))){
-				gitRepo.checkout().setName("master").call();
+				this.git = gitRepo;
+				gitRepo.checkout().setName(this.getDefaultBranch()).call();
 				gitRepo.pull().call();
 				
-				this.git = gitRepo;
 			}
 		}
+	}
+	
+	private String getDefaultBranch() throws GitAPIException {
+		List<Ref> branches = this.git.branchList().setListMode(ListMode.ALL).call();
+		for (Ref branch: branches) {
+			String branchName = branch.getName();
+			if (branchName.startsWith("refs/heads/")) {
+				return branchName.substring("refs/heads/".length());
+			}
+		}
+		return "";
+		
 	}
 	
 	public String getRepoDir() {

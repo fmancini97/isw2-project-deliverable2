@@ -14,12 +14,12 @@ import java.util.logging.Logger;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.json.JSONException;
 
+import it.uniroma2.ing.isw2.fmancini.csv.CSVDAO;
+import it.uniroma2.ing.isw2.fmancini.csv.CSVIncorrectNumValues;
+import it.uniroma2.ing.isw2.fmancini.csv.CSVable;
 import it.uniroma2.ing.isw2.fmancini.swanalytics.classanalysis.ClassData;
 import it.uniroma2.ing.isw2.fmancini.swanalytics.classanalysis.MeasurmentIterator;
 import it.uniroma2.ing.isw2.fmancini.swanalytics.classanalysis.Release;
-import it.uniroma2.ing.isw2.fmancini.swanalytics.csv.CSVDAO;
-import it.uniroma2.ing.isw2.fmancini.swanalytics.csv.CSVIncorrectNumValues;
-import it.uniroma2.ing.isw2.fmancini.swanalytics.csv.CSVable;
 import it.uniroma2.ing.isw2.fmancini.swanalytics.jira.IssueType;
 import it.uniroma2.ing.isw2.fmancini.swanalytics.jira.Ticket;
 import it.uniroma2.ing.isw2.fmancini.swanalytics.metrics.MetricType;

@@ -1,6 +1,6 @@
 package it.uniroma2.ing.isw2.fmancini.machinelearning;
 
-import it.uniroma2.ing.isw2.fmancini.swanalytics.csv.CSVable;
+import it.uniroma2.ing.isw2.fmancini.csv.CSVable;
 
 public class RunResult implements CSVable {
 	private String projectName;

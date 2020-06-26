@@ -6,7 +6,7 @@ package it.uniroma2.ing.isw2.fmancini.swanalytics.jira;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import it.uniroma2.ing.isw2.fmancini.swanalytics.csv.CSVable;
+import it.uniroma2.ing.isw2.fmancini.csv.CSVable;
 
 /**
  * @author fmancini
