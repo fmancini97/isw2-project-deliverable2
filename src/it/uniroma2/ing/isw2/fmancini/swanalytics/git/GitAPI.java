@@ -107,7 +107,7 @@ public class GitAPI {
 		this.commits = new ArrayList<>();  
         Iterable<RevCommit> commitsLog = null;
         
-		this.git.checkout().setName("master").call();
+		this.git.checkout().setName(this.getDefaultBranch()).call();
 		commitsLog = git.log().call();
        
         for (RevCommit commit : commitsLog) {

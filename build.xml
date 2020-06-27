@@ -3,12 +3,12 @@
               Any modifications will be overwritten.
               To include a user specific buildfile here, simply create one in the same
               directory with the processing instruction <?eclipse.ant.import?>
-              as the first entry and export the buildfile again. --><project basedir="." default="build" name="isw2-project">
+              as the first entry and export the buildfile again. --><project basedir="." default="build" name="isw2-project-deliverable2">
     <property environment="env"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.8"/>
     <property name="source" value="1.8"/>
-    <path id="isw2-project.classpath">
+    <path id="isw2-project-deliverable2.classpath">
         <pathelement location="bin"/>
         <pathelement location="lib/jgit/args4j-2.33.jar"/>
         <pathelement location="lib/jgit/bcpg-jdk15on-1.64.jar"/>
@@ -73,7 +73,7 @@
         <echo message="${ant.project.name}: ${ant.file}"/>
         <javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}">
             <src path="src"/>
-            <classpath refid="isw2-project.classpath"/>
+            <classpath refid="isw2-project-deliverable2.classpath"/>
         </javac>
     </target>
     <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
@@ -90,19 +90,9 @@
         <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
         <antcall target="build"/>
     </target>
-    <target name="SWAnalytics">
+    <target name="SWAnalytics (2)">
         <java classname="it.uniroma2.ing.isw2.fmancini.swanalytics.SWAnalytics" failonerror="true" fork="yes">
-            <classpath refid="isw2-project.classpath"/>
-        </java>
-    </target>
-    <target name="CSV2Arff">
-        <java classname="it.uniroma2.ing.isw2.fmancini.machinelearning.CSV2Arff" failonerror="true" fork="yes">
-            <classpath refid="isw2-project.classpath"/>
-        </java>
-    </target>
-    <target name="WalkForward">
-        <java classname="it.uniroma2.ing.isw2.fmancini.machinelearning.WalkForward" failonerror="true" fork="yes">
-            <classpath refid="isw2-project.classpath"/>
+            <classpath refid="isw2-project-deliverable2.classpath"/>
         </java>
     </target>
 </project>
