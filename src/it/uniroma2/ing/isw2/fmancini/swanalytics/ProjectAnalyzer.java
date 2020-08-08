@@ -167,7 +167,7 @@ public class ProjectAnalyzer {
 				bug.setInjectedVersion(injectedVersion.getId());
 				affectedVersionCalculator.updateProportionValue(injectedVersion.getId(), bug.getOpeningVersion(), bug.getFixedVersion());
 			}		
-			List<Integer> affectedVersionss = IntStream.rangeClosed(bug.getInjectedVersion(), bug.getFixedVersion()).boxed().collect(Collectors.toList());
+			List<Integer> affectedVersionss = IntStream.range(bug.getInjectedVersion(), bug.getFixedVersion()).boxed().collect(Collectors.toList());
 			for (String affectedClass: bug.getAffectedClasses()) {
 				TreeSet<Integer> classAffectedVefrisons = null;
 				if (classBugginess.containsKey(affectedClass)) {

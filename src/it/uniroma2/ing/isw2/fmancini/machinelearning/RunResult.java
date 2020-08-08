@@ -169,7 +169,7 @@ public class RunResult implements CSVable {
 				+ this.classifier.toString() + ";" + this.sampling + ";" + featureSelectionName + ";"
 				+ this.truePositive.toString() + ";" + this.falsePositive.toString() + ";"
 				+ this.trueNegative.toString() + ";" + this.falseNegative.toString() + ";"
-				+ this.precision.toString() + ";" + this.recall.toString() + ";" 
+				+ this.precision.toString().replace(',', '.') + ";" + this.recall.toString() + ";" 
 				+ this.auc.toString() + ";" + this.kappa.toString();
 	}
 

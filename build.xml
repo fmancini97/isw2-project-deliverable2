@@ -58,7 +58,6 @@
         <mkdir dir="bin"/>
         <copy includeemptydirs="false" todir="bin">
             <fileset dir="src">
-                <exclude name="**/*.launch"/>
                 <exclude name="**/*.java"/>
             </fileset>
         </copy>
@@ -90,8 +89,18 @@
         <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
         <antcall target="build"/>
     </target>
+    <target name="CSV2Arff (1)">
+        <java classname="it.uniroma2.ing.isw2.fmancini.machinelearning.CSV2Arff" failonerror="true" fork="yes">
+            <classpath refid="isw2-project-deliverable2.classpath"/>
+        </java>
+    </target>
     <target name="SWAnalytics (2)">
         <java classname="it.uniroma2.ing.isw2.fmancini.swanalytics.SWAnalytics" failonerror="true" fork="yes">
+            <classpath refid="isw2-project-deliverable2.classpath"/>
+        </java>
+    </target>
+    <target name="WalkForward (1)">
+        <java classname="it.uniroma2.ing.isw2.fmancini.machinelearning.WalkForward" failonerror="true" fork="yes">
             <classpath refid="isw2-project-deliverable2.classpath"/>
         </java>
     </target>
