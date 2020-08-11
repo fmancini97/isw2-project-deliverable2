@@ -9,6 +9,7 @@ import java.util.Date;
 import it.uniroma2.ing.isw2.fmancini.csv.CSVable;
 
 /**
+ * Contains the data for a project ticket
  * @author fmancini
  *
  */

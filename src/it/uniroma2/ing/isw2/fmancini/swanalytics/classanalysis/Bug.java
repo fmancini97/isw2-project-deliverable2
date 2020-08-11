@@ -4,6 +4,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Contains information about a project bug
+ * @author franc
+ *
+ */
 public class Bug {
 	private String name;
 	private Date createdAt;

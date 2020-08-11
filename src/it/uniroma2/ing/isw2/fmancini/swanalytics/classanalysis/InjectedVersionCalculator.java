@@ -3,6 +3,11 @@ package it.uniroma2.ing.isw2.fmancini.swanalytics.classanalysis;
 import java.util.Queue;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 
+/**
+ * Estimate the injected version of a bug using the Proportion Moving Window method
+ * @author fmancini
+ *
+ */
 public class InjectedVersionCalculator {
 	private Integer windowSize;
 	private Queue<Integer> proportions;

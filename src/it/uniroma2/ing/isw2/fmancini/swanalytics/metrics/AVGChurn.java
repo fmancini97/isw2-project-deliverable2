@@ -4,6 +4,11 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import it.uniroma2.ing.isw2.fmancini.swanalytics.git.DiffData;
 
+/**
+ * Measures the average churn of a class
+ * @author fmancini
+ *
+ */
 public class AVGChurn extends RevisionMetric {
 	
 	private NumRevisions numRevisions;

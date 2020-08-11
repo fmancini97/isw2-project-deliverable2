@@ -2,6 +2,11 @@ package it.uniroma2.ing.isw2.fmancini.swanalytics.metrics;
 
 import it.uniroma2.ing.isw2.fmancini.csv.CSVable;
 
+/**
+ * Abstract class of a metric
+ * @author fmancini
+ *
+ */
 public abstract class Metric implements CSVable {
 
 	private Integer measurment;

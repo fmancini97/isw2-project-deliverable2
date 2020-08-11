@@ -2,6 +2,11 @@ package it.uniroma2.ing.isw2.fmancini.swanalytics.git;
 
 import org.eclipse.jgit.lib.ObjectId;
 
+/**
+ * Contains information from a git repository release
+ * @author fmancini
+ *
+ */
 public class ReleaseGit {
 	private String name;
 	private ObjectId releaseId;

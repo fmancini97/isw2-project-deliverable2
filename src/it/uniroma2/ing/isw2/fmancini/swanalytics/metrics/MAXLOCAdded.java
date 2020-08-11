@@ -4,6 +4,11 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import it.uniroma2.ing.isw2.fmancini.swanalytics.git.DiffData;
 
+/**
+ * Measures the maximum number of code lines added in a class
+ * @author fmancini
+ *
+ */
 public class MAXLOCAdded extends RevisionMetric {
 
 	public MAXLOCAdded() {

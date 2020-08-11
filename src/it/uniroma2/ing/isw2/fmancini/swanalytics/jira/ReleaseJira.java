@@ -2,6 +2,11 @@ package it.uniroma2.ing.isw2.fmancini.swanalytics.jira;
 
 import java.util.Date;
 
+/**
+ * Contains data for a version of the project
+ * @author fmancini
+ *
+ */
 public class ReleaseJira {
 	private Integer id;
 	private String name;

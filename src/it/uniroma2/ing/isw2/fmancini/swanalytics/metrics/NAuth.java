@@ -6,7 +6,11 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import it.uniroma2.ing.isw2.fmancini.swanalytics.git.DiffData;
 
-
+/**
+ * Measures the number of different authors in a class
+ * @author fmancini
+ *
+ */
 public class NAuth extends RevisionMetric {
 	HashSet<String> auths;
 	

@@ -12,7 +12,12 @@ import weka.classifiers.Evaluation;
 import weka.classifiers.meta.FilteredClassifier;
 import weka.core.Instances;
 
-
+/**
+ * Thread that performs training and testing of a classifier using a sampling technique and a feature selection technique.
+ * Measures the accuracy of the classifier
+ * @author fmancini
+ *
+ */
 public class ClassifierThread extends Thread {
 	private String projectName;
 	private Classifier classifier;
@@ -120,10 +125,14 @@ public class ClassifierThread extends Thread {
 
 			eval.evaluateModel(abstractClassfier, this.testingSet); 
 			
-			Float truePositive = (float) eval.truePositiveRate(this.classIndex);
-			Float falsePositive = (float) eval.falsePositiveRate(this.classIndex);
-			Float trueNegative = (float) eval.trueNegativeRate(this.classIndex);
-			Float falseNegative = (float) eval.falseNegativeRate(this.classIndex);
+			Float truePositives = (float) eval.numTruePositives(this.classIndex);
+			Float falsePositives = (float) eval.numFalsePositives(this.classIndex);
+			Float trueNegatives = (float) eval.numTrueNegatives(this.classIndex);
+			Float falseNegatives = (float) eval.numFalseNegatives(this.classIndex);
+			Float truePositiveRate = (float) eval.truePositiveRate(this.classIndex);
+			Float falsePositiveRate = (float) eval.falsePositiveRate(this.classIndex);
+			Float trueNegativeRate = (float) eval.trueNegativeRate(this.classIndex);
+			Float falseNegativeRate = (float) eval.falseNegativeRate(this.classIndex);
 			Float precision = (float) eval.precision(this.classIndex);
 			Float recall = (float) eval.recall(this.classIndex);
 			Float auc = (float) eval.areaUnderROC(this.classIndex);
@@ -134,10 +143,14 @@ public class ClassifierThread extends Thread {
 			this.result.setTrainingPercentage(((float) this.trainingSet.size()/this.datasetSize) * 100);
 			this.result.setDefectiveInTrainingPercentage(((float) this.numDefectiveInTraining/this.trainingSet.size()) * 100);
 			this.result.setDefectiveInTestingPercentage(((float) this.numDefectiveInTesting/this.testingSet.size()) * 100);
-			this.result.setTruePositive(truePositive);
-			this.result.setFalsePositive(falsePositive);
-			this.result.setTrueNegative(trueNegative);
-			this.result.setFalseNegative(falseNegative);
+			this.result.setTruePositives(truePositives);
+			this.result.setFalsePositives(falsePositives);
+			this.result.setTrueNegatives(trueNegatives);
+			this.result.setFalseNegatives(falseNegatives);
+			this.result.setTruePositiveRate(truePositiveRate);
+			this.result.setFalsePositiveRate(falsePositiveRate);
+			this.result.setTrueNegativeRate(trueNegativeRate);
+			this.result.setFalseNegativeRate(falseNegativeRate);
 			this.result.setPrecision(precision);
 			this.result.setRecall(recall);
 			this.result.setAuc(auc);

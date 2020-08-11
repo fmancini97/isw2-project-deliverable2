@@ -7,6 +7,11 @@ import org.eclipse.jgit.lib.ObjectId;
 
 import it.uniroma2.ing.isw2.fmancini.csv.CSVable;
 
+/**
+ * Contains information about the release of a project
+ * @author fmancini
+ *
+ */
 public class Release implements CSVable {
 	private Integer id;
 	private Date releaseDate;

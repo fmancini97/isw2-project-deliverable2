@@ -4,6 +4,11 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import it.uniroma2.ing.isw2.fmancini.swanalytics.git.DiffData;
 
+/**
+ * Measures the maximum churn in a class
+ * @author fmancini
+ *
+ */
 public class MAXChurn extends RevisionMetric {
 
 	

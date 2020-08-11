@@ -31,6 +31,11 @@ import it.uniroma2.ing.isw2.fmancini.swanalytics.jira.ReleaseJira;
 import it.uniroma2.ing.isw2.fmancini.swanalytics.jira.Ticket;
 import it.uniroma2.ing.isw2.fmancini.swanalytics.metrics.MetricType;
 
+/**
+ * Performs multiple analyses on the classes of an Apache project 
+ * @author fmancini
+ *
+ */
 public class ProjectAnalyzer {
 	private GitAPI git;
 	private JiraAPI jira;
@@ -39,7 +44,11 @@ public class ProjectAnalyzer {
 	private String gitReleaseRegex;
 	private List<Release> releases;
 	
-	
+	/**
+	 * 
+	 * @param projectName: name of the project
+	 * @param baseDir: folder where to save the metadata associated with the project
+	 */
 	public ProjectAnalyzer(String projectName, String baseDir) {
 		this.projectName = projectName;
 		if (!baseDir.substring(baseDir.length() - 1).contains("/")) {
@@ -73,7 +82,13 @@ public class ProjectAnalyzer {
 		this.init("%s");
 	}
 
-	
+	/**
+	 * Analyze the Jira tickets associated with the project
+	 * @param issueType: type of ticket issue
+	 * @return
+	 * @throws IOException
+	 * @throws GitAPIException
+	 */
 	public Map<String,Ticket> analyzeTickets(IssueType issueType) throws IOException, GitAPIException {
 		Map<String,Ticket> tickets = null;
 		tickets = this.jira.retriveTickets(issueType);
@@ -83,7 +98,13 @@ public class ProjectAnalyzer {
 		return tickets;
 	}
 	
-	
+	/**
+	 * Search for defective classes and versions in which they were defective
+	 * @return Association between classes and versions in which they are defective
+	 * @throws IOException
+	 * @throws ParseException
+	 * @throws GitAPIException
+	 */
 	public Map<String,TreeSet<Integer>> getBuggyClasses() throws IOException, ParseException, GitAPIException {
 		
 		SortedSet<Bug> sortedBugs = this.getBugs();
@@ -92,6 +113,13 @@ public class ProjectAnalyzer {
 		return this.findAffectedClasses(sortedBugs);
 	}
 	
+	/**
+	 * Search all bugs within the project
+	 * @return
+	 * @throws IOException
+	 * @throws ParseException
+	 * @throws GitAPIException
+	 */
 	private SortedSet<Bug> getBugs() throws IOException, ParseException, GitAPIException {
 		
 		HashMap<String, Bug> indexeedBugs = new HashMap<>();
@@ -106,6 +134,16 @@ public class ProjectAnalyzer {
 		return sortedBugs;
 	}
 	
+	/**
+	 * Search for defective classes within a commit using the jira ticket identification code in the comment.
+	 * Index bugs based on ticket identifier and search for opening version and fixed version of the ticket
+	 * @param commit
+	 * @param indexeedBugs
+	 * @return
+	 * @throws IOException
+	 * @throws ParseException
+	 * @throws GitAPIException
+	 */
 	private SortedSet<Bug> findBugFixs(CommitInfo commit, HashMap<String, Bug> indexeedBugs) throws IOException, ParseException, GitAPIException {
 		Map<String, JiraBug> jiraBugs = this.jira.getBugs();
 		List<String> bugNames = commit.findTicketIds(this.projectName + "-");
@@ -133,6 +171,15 @@ public class ProjectAnalyzer {
 		return sortedBugs;
 	}
 	
+	/**
+	 * Search for classes that have changed between two revisions.
+	 * This method is used to find defective classes
+	 * @param start
+	 * @param end
+	 * @return
+	 * @throws GitAPIException
+	 * @throws IOException
+	 */
 	private List<String> getAffectedClasses(ObjectId start, ObjectId end) throws GitAPIException, IOException {
 		List<DiffData> diffDatas = this.git.diff(start, end);
 
@@ -145,11 +192,18 @@ public class ProjectAnalyzer {
 		return classes;
 	}
 	
+	/**
+	 * Builds a map where it associates to each class the versions in which it was defective
+	 * @param bugs
+	 * @return
+	 * @throws IOException
+	 * @throws ParseException
+	 */
 	private Map<String,TreeSet<Integer>> findAffectedClasses(SortedSet<Bug> bugs) throws IOException, ParseException {
 		Map<String, JiraBug> jiraBugs = this.jira.getBugs();
 
 		
-		// Find Affected Version
+		// Find Affected Version using Moving Window technique
 		InjectedVersionCalculator  affectedVersionCalculator = new InjectedVersionCalculator(bugs.size());
 		Map<String, Release> releasesMap = new HashMap<>();
 		for(Release release: this.releases) {
@@ -183,6 +237,13 @@ public class ProjectAnalyzer {
 		return classBugginess;
 	}
 	
+	/**
+	 * Search for the injected version in a list of versions.
+	 * This method is used when tickets provide affected versions
+	 * @param affectedVersions
+	 * @param releases
+	 * @return
+	 */
 	private Release findInjectededVerison(List<String> affectedVersions, Map<String, Release> releases) {
 		Release injectedVersion = null;
 		for (String affectedVersion: affectedVersions) {
@@ -194,6 +255,11 @@ public class ProjectAnalyzer {
 		return injectedVersion;
 	}
 	
+	/**
+	 * Search for Jira ticket fixed dates within commit comments
+	 * @param tickets
+	 * @param commits
+	 */
 	private void findFixedDate(Map<String,Ticket> tickets, List<CommitInfo> commits) {
 		for (CommitInfo commit : commits) {
 			List<String> ticketIds = commit.findTicketIds(this.projectName.toUpperCase() + "-");
@@ -207,6 +273,14 @@ public class ProjectAnalyzer {
 		}
 	}
 	
+	/**
+	 * Search the releases of the project.
+	 * If the search has already been done, the method returns the cached versions immediately
+	 * @return
+	 * @throws IOException
+	 * @throws ParseException
+	 * @throws GitAPIException
+	 */
 	public List<Release> getReleases() throws IOException, ParseException, GitAPIException{
 		if (this.releases == null) {
 			this.retiveReleases();
@@ -215,6 +289,15 @@ public class ProjectAnalyzer {
 	
 	}	
 	
+	/**
+	 * Measure classes and analyze their defectiveness
+	 * @param metrics: list of metrics to use for measurements
+	 * @param releasePercentage: percentage of versions to consider in measurements (snoring)
+	 * @return iterator that allows you to analyze classes one version at a time
+	 * @throws IOException
+	 * @throws ParseException
+	 * @throws GitAPIException
+	 */
 	public MeasurmentIterator analyzeClasses(List<MetricType> metrics, Integer releasePercentage) throws IOException, ParseException, GitAPIException {
 		if (this.releases == null) {
 			this.retiveReleases();
@@ -233,6 +316,12 @@ public class ProjectAnalyzer {
 		return new MeasurmentIterator(analyzedReleases.iterator(), metrics, buggyClasses, this.git);
 	}
 	
+	/**
+	 * Search for project versions
+	 * @throws IOException
+	 * @throws ParseException
+	 * @throws GitAPIException
+	 */
 	private void retiveReleases() throws IOException, ParseException, GitAPIException {
 		this.releases = new ArrayList<>();
 		SortedSet<ReleaseJira> releasesJira = this.jira.retriveReleases();
@@ -247,7 +336,15 @@ public class ProjectAnalyzer {
 		}
 	}
 	
-	
+	/**
+	 * Search for the version associated with a date.
+	 * If it exists, the returned version has as released date a date immediately following the date in input
+	 * @param date
+	 * @return
+	 * @throws IOException
+	 * @throws ParseException
+	 * @throws GitAPIException
+	 */
 	private Release findRelease(Date date) throws IOException, ParseException, GitAPIException {
 		if (this.releases == null) {
 			this.retiveReleases();

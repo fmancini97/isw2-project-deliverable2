@@ -2,6 +2,11 @@ package it.uniroma2.ing.isw2.fmancini.machinelearning;
 
 import it.uniroma2.ing.isw2.fmancini.csv.CSVable;
 
+/**
+ * Contains the results of a test of a classifier
+ * @author fmancini
+ *
+ */
 public class RunResult implements CSVable {
 	private String projectName;
 	private Integer numVersions;
@@ -11,10 +16,14 @@ public class RunResult implements CSVable {
 	private Classifier classifier;
 	private Sampling sampling;
 	private boolean featureSelection;
-	private Float truePositive;
-	private Float falsePositive;
-	private Float trueNegative;
-	private Float falseNegative;
+	private Float truePositives;
+	private Float falsePositives;
+	private Float trueNegatives;
+	private Float falseNegatives;
+	private Float truePositiveRate;
+	private Float falsePositiveRate;
+	private Float trueNegativeRate;
+	private Float falseNegativeRate;
 	private Float precision;
 	private Float recall;
 	private Float auc;
@@ -24,16 +33,20 @@ public class RunResult implements CSVable {
 		super();
 		this.projectName = projectName;
 		this.numVersions = 0;
-		this.trainingPercentage = (float) 0;
-		this.defectiveInTrainingPercentage = (float) 0;
-		this.defectiveInTestingPercentage = (float) 0;
+		this.trainingPercentage = 0f;
+		this.defectiveInTrainingPercentage = 0f;
+		this.defectiveInTestingPercentage = 0f;
 		this.classifier = classifier;
 		this.sampling = sampling;
 		this.featureSelection = featureSelection;
-		this.truePositive = (float) 0;
-		this.falsePositive = (float) 0;
-		this.trueNegative = (float) 0;
-		this.falseNegative = (float) 0;
+		this.truePositives = 0f;
+		this.falsePositives = 0f;
+		this.trueNegatives = 0f;
+		this.falseNegatives = 0f;
+		this.truePositiveRate = 0f;
+		this.falsePositiveRate = 0f;
+		this.trueNegativeRate = 0f;
+		this.falseNegativeRate = 0f;
 		this.precision = (float) 0;
 		this.recall = (float) 0;
 		this.auc = (float) 0;
@@ -97,36 +110,76 @@ public class RunResult implements CSVable {
 		this.featureSelection = featureSelection;
 	}
 
-	public Float getTruePositive() {
-		return truePositive;
+	public Sampling getSampling() {
+		return sampling;
 	}
 
-	public void setTruePositive(Float truePositive) {
-		this.truePositive = truePositive;
+	public void setSampling(Sampling sampling) {
+		this.sampling = sampling;
 	}
 
-	public Float getFalsePositive() {
-		return falsePositive;
+	public Float getTruePositives() {
+		return truePositives;
 	}
 
-	public void setFalsePositive(Float falsePositive) {
-		this.falsePositive = falsePositive;
+	public void setTruePositives(Float truePositives) {
+		this.truePositives = truePositives;
 	}
 
-	public Float getTrueNegative() {
-		return trueNegative;
+	public Float getFalsePositives() {
+		return falsePositives;
 	}
 
-	public void setTrueNegative(Float trueNegative) {
-		this.trueNegative = trueNegative;
+	public void setFalsePositives(Float falsePositives) {
+		this.falsePositives = falsePositives;
 	}
 
-	public Float getFalseNegative() {
-		return falseNegative;
+	public Float getTrueNegatives() {
+		return trueNegatives;
 	}
 
-	public void setFalseNegative(Float falseNegative) {
-		this.falseNegative = falseNegative;
+	public void setTrueNegatives(Float trueNegatives) {
+		this.trueNegatives = trueNegatives;
+	}
+
+	public Float getFalseNegatives() {
+		return falseNegatives;
+	}
+
+	public void setFalseNegatives(Float falseNegatives) {
+		this.falseNegatives = falseNegatives;
+	}
+
+	public Float getTruePositiveRate() {
+		return truePositiveRate;
+	}
+
+	public void setTruePositiveRate(Float truePositiveRate) {
+		this.truePositiveRate = truePositiveRate;
+	}
+
+	public Float getFalsePositiveRate() {
+		return falsePositiveRate;
+	}
+
+	public void setFalsePositiveRate(Float falsePositiveRate) {
+		this.falsePositiveRate = falsePositiveRate;
+	}
+
+	public Float getTrueNegativeRate() {
+		return trueNegativeRate;
+	}
+
+	public void setTrueNegativeRate(Float trueNegativeRate) {
+		this.trueNegativeRate = trueNegativeRate;
+	}
+
+	public Float getFalseNegativeRate() {
+		return falseNegativeRate;
+	}
+
+	public void setFalseNegativeRate(Float falseNegativeRate) {
+		this.falseNegativeRate = falseNegativeRate;
 	}
 
 	public Float getPrecision() {
@@ -164,17 +217,21 @@ public class RunResult implements CSVable {
 	@Override
 	public String toCSV() {
 		String featureSelectionName = (this.featureSelection) ? "Best First" : "No selection";
+		Float correctedPrecision = (this.precision.isNaN()) ? 0.0f : this.precision;
+		
 		return this.projectName + ";" + this.numVersions.toString() + ";" + this.trainingPercentage.toString() + ";"
 				+ this.defectiveInTrainingPercentage + ";" + this.defectiveInTestingPercentage.toString() + ";"
 				+ this.classifier.toString() + ";" + this.sampling + ";" + featureSelectionName + ";"
-				+ this.truePositive.toString() + ";" + this.falsePositive.toString() + ";"
-				+ this.trueNegative.toString() + ";" + this.falseNegative.toString() + ";"
-				+ this.precision.toString().replace(',', '.') + ";" + this.recall.toString() + ";" 
+				+ this.truePositives.toString() + ";" + this.falsePositives.toString() + ";"
+				+ this.trueNegatives.toString() + ";" + this.falseNegatives.toString() + ";"
+				+ this.truePositiveRate.toString() + ";" + this.falsePositiveRate.toString() + ";"
+				+ this.trueNegativeRate.toString() + ";" + this.falseNegativeRate.toString() + ";"
+				+ correctedPrecision.toString().replace(',', '.') + ";" + this.recall.toString() + ";" 
 				+ this.auc.toString() + ";" + this.kappa.toString();
 	}
 
 	@Override
 	public String getHeader() {
-		return "Dataset;#TrainingRelease;%Training;%Defective in training;%Defective in testing;Classifier;Sampling;Feature Selection;TP;FP;TN;FN;Precision;Recall;AUC;Kappa";
+		return "Dataset;#TrainingRelease;%Training;%Defective in training;%Defective in testing;Classifier;Sampling;Feature Selection;TP;FP;TN;FN;TPR;FPR;TNR;FNR;Precision;Recall;AUC;Kappa";
 	}
 }

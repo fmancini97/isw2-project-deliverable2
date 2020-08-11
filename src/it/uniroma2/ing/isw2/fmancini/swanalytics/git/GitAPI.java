@@ -38,6 +38,7 @@ import org.eclipse.jgit.treewalk.filter.PathFilter;
 import it.uniroma2.ing.isw2.fmancini.swanalytics.classanalysis.Release;
 
 /**
+ * Allows you to interact with the git repository of an Apache project
  * @author fmancini
  *
  */
@@ -98,7 +99,7 @@ public class GitAPI {
 	public String getRepoDir() {
 		return repoDir;
 	}
-
+	
 	public List<CommitInfo> getCommits() throws GitAPIException {
 		if (this.commits != null) {
 			return this.commits;
@@ -135,6 +136,14 @@ public class GitAPI {
 		return releases;
 	}
 	
+	/**
+	 * Analyze the differences between two revisions
+	 * @param startCommit
+	 * @param endCommit
+	 * @return
+	 * @throws GitAPIException
+	 * @throws IOException
+	 */
 	public List<DiffData> diff(ObjectId startCommit, ObjectId endCommit) throws GitAPIException, IOException {
 		
 		DiffCommand command = git.diff()
@@ -151,10 +160,26 @@ public class GitAPI {
 		return diff;
 	}
 	
+	/**
+	 * Analyzes the differences between a review and the first review
+	 * @param endCommit
+	 * @return
+	 * @throws GitAPIException
+	 * @throws IOException
+	 */
 	public List<DiffData> diff(ObjectId endCommit) throws GitAPIException, IOException {
 		return this.diff(null, endCommit);
 	}
 	
+	/**
+	 * Search for commits between two releases
+	 * @param startRelease
+	 * @param endRelease
+	 * @return
+	 * @throws MissingObjectException
+	 * @throws IncorrectObjectTypeException
+	 * @throws GitAPIException
+	 */
 	public List<RevCommit> listCommits(ObjectId startRelease, ObjectId endRelease) throws MissingObjectException, IncorrectObjectTypeException, GitAPIException {
 		LogCommand logCommand = this.git.log();
 		logCommand = (startRelease != null) ? logCommand.addRange(startRelease, endRelease) : logCommand.add(endRelease);
@@ -167,6 +192,14 @@ public class GitAPI {
 		return releaseCommits;
 	}
 	
+	/**
+	 * Search for commits up to a specific release 
+	 * @param endRelease
+	 * @return
+	 * @throws MissingObjectException
+	 * @throws IncorrectObjectTypeException
+	 * @throws GitAPIException
+	 */
 	public List<RevCommit> listCommits(ObjectId endRelease) throws MissingObjectException, IncorrectObjectTypeException, GitAPIException {
 		return this.listCommits(null, endRelease);
 	}
@@ -180,7 +213,13 @@ public class GitAPI {
 		return new CanonicalTreeParser( null, reader, treeId);
 	}
 	
-	public List<String> listFiles(String identifier) throws IOException {
+	/**
+	 * Search Java files in the project
+	 * @param identifier
+	 * @return
+	 * @throws IOException
+	 */
+	public List<String> listJavaFiles(String identifier) throws IOException {
 		List<String> files = new ArrayList<>();
 		
 		try (RevWalk revWalk = new RevWalk(this.git.getRepository()); TreeWalk treeWalk = new TreeWalk(this.git.getRepository())) {
@@ -202,6 +241,13 @@ public class GitAPI {
 		return files;	
 	}
 	
+	/**
+	 * Opens a read channel for a file belonging to a specific version
+	 * @param release
+	 * @param filePath
+	 * @return
+	 * @throws IOException
+	 */
 	public InputStream getFile(Release release, String filePath) throws IOException {
 		try (RevWalk revWalk = new RevWalk(this.git.getRepository()); TreeWalk treeWalk = new TreeWalk(this.git.getRepository())) {
 			ObjectId commitId = ObjectId.fromString(release.getReleaseSha());
@@ -226,6 +272,12 @@ public class GitAPI {
         }
 	}
 	
+	/**
+	 * Analyzes the output of the "git diff" command
+	 * @param diff: output of "git diff" command
+	 * @return
+	 * @throws IOException
+	 */
 	private DiffData parseDiffEntry(DiffEntry diff) throws IOException {
 		
 		String newPath = diff.getNewPath();

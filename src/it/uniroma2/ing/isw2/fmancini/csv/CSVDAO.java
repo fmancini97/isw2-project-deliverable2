@@ -4,6 +4,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * It takes care of saving classes that implement the CSVable interface in csv files
+ * @author fmancini
+ */
 public class CSVDAO {
 	private String csvName;
 	private FileWriter csvWriter;

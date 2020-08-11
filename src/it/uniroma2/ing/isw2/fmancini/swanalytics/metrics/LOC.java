@@ -6,6 +6,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.stream.Stream;
 
+/**
+ * Measures the number of lines of code of a class
+ * @author fmancini
+ *
+ */
 public class LOC extends Metric{
 	
 	public LOC () {

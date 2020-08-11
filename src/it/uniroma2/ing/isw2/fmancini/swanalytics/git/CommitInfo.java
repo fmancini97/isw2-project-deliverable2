@@ -6,6 +6,11 @@ import java.util.List;
 
 import org.eclipse.jgit.lib.ObjectId;
 
+/**
+ * Contains information regarding the revision of a project
+ * @author fmancini
+ *
+ */
 public class CommitInfo {
 	private ObjectId id;
 	private Date date;
@@ -34,10 +39,13 @@ public class CommitInfo {
 		return parentId;
 	}
 
+	/**
+	 * Search for Jira ticket identification codes within the comment
+	 * @param ticketPath
+	 * @return
+	 */
 	public List<String> findTicketIds(String ticketPath) {
 		List<String> ticketIds= new ArrayList<>();
-		
-		
 		
 		int index = message.indexOf(ticketPath);
 		while (index != -1) {

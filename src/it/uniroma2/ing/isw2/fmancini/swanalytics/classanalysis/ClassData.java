@@ -12,6 +12,11 @@ import it.uniroma2.ing.isw2.fmancini.swanalytics.git.DiffData;
 import it.uniroma2.ing.isw2.fmancini.swanalytics.metrics.LOC;
 import it.uniroma2.ing.isw2.fmancini.swanalytics.metrics.RevisionMetric;
 
+/**
+ * Contains the information of a class in a specific version
+ * @author fmancini
+ *
+ */
 public class ClassData implements CSVable {
 	private String name;
 	private Release release;

@@ -20,6 +20,7 @@ import org.json.JSONObject;
 import it.uniroma2.ing.isw2.fmancini.swanalytics.JSONTools;
 
 /**
+ * Allows you to interact with the Jira resources of Apache projects
  * @author fmancini
  *
  */
@@ -34,14 +35,19 @@ public class JiraAPI {
 		this.bugs = null;
 	}
 	
-	
+	/**
+	 * Search tickets for a specific issue type
+	 * @param issueType
+	 * @return
+	 * @throws IOException
+	 */
 	public Map<String,Ticket> retriveTickets(IssueType issueType) throws IOException {
 		Map<String,Ticket> tickets = new HashMap<>();
 		
 		Integer j = 0;
 		Integer i = 0;
 		Integer total = 1;
-	      //Get JSON API for closed bugs w/ AV in the project
+	    //Get JSON API for closed bugs w/ AV in the project
 		do {
 			//https://issues.apache.org/jira/rest/api/2/search?jql=project%20%3D%20OPENJPA%20AND%20issueType%20%3D%20Bug%20AND(%20status%20=%20closed%20OR%20status%20=%20resolved%20)AND%20resolution%20=%20fixed%20&fields=key,resolutiondate,versions,created&startAt=0&maxResults=1000
 			//Only gets a max of 1000 at a time, so must do this multiple times if bugs >1000
@@ -67,6 +73,12 @@ public class JiraAPI {
 	      
 	}
 	
+	/**
+	 * Search for project releases
+	 * @return
+	 * @throws IOException
+	 * @throws ParseException
+	 */
 	public SortedSet<ReleaseJira> retriveReleases() throws IOException, ParseException{
 		
 		String url = basicUrl + "project/" + this.projectName + "/version";
@@ -85,6 +97,13 @@ public class JiraAPI {
         return releases;
 	}
 	
+	/**
+	 * Look for bug fix issues in the project.
+	 * For each issue, look for the opening date, bug affected versions and fixed versions
+	 * @return
+	 * @throws IOException
+	 * @throws ParseException
+	 */
 	public Map<String, JiraBug> getBugs() throws IOException, ParseException {
 		if (this.bugs != null) {
 			return new HashMap<>(this.bugs);
@@ -125,6 +144,11 @@ public class JiraAPI {
 		
 	}
 	
+	/**
+	 * Parses the json array of the versions returned by Jira 
+	 * @param versions
+	 * @return
+	 */
 	private List<String> parseVersions(JSONArray versions) {
 		List<String> parsedVersions = new ArrayList<>();
 		

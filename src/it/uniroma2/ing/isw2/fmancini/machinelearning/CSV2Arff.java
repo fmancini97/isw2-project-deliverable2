@@ -6,11 +6,14 @@ import weka.core.converters.ArffSaver;
 import weka.core.converters.CSVLoader;
 import java.io.File;
 
+/**
+ * Converts datasets from csv format to arff format
+ * @author fmancini
+ *
+ */
 public class CSV2Arff {
   
   public static void main(String[] args) throws Exception {
-    
-	  
 	  
 	// List all projects available
 	File projectsDir = new File("./output");

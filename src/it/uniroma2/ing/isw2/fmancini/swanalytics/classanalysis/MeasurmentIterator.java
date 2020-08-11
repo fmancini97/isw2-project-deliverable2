@@ -20,6 +20,12 @@ import it.uniroma2.ing.isw2.fmancini.swanalytics.git.DiffData;
 import it.uniroma2.ing.isw2.fmancini.swanalytics.git.GitAPI;
 import it.uniroma2.ing.isw2.fmancini.swanalytics.metrics.MetricType;
 
+/**
+ * Performs class measurements for each release.
+ * Generates the dataset of class measurements and class difectivity.
+ * @author fmancini
+ *
+ */
 public class MeasurmentIterator {
 	private Iterator<Release> releases;
 	private Release previousRelease;
@@ -43,6 +49,17 @@ public class MeasurmentIterator {
 		this.actualReleaseClasses = new TreeMap<>();
 	}
 	
+	/**
+	 * Performs measurements of the classes of the version following the one analyzed
+	 * 
+	 * @return Result of the analysis or null if there are no more releases
+	 * @throws GitAPIException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 * @throws InterruptedException
+	 */
 	public List<ClassData> next() throws GitAPIException, IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, InterruptedException{
 		List<ClassData> classDatas = null;
 		
@@ -73,6 +90,11 @@ public class MeasurmentIterator {
 		return classDatas;	
 	}
 	
+	/**
+	 * Measures the number of code lines of the classes of a specific version
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
 	private void analyzeFiles() throws IOException, InterruptedException {
 		List<FileAnalysisThread> fileAnalysisThreads = new ArrayList<>();
 		
@@ -96,11 +118,18 @@ public class MeasurmentIterator {
 		}
 	}
 	
+	/**
+	 * Search for classes belonging to a specific version. Generates the data structures that must contain the results of the new analyses
+	 * @throws ClassNotFoundException
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 */
 	private void updateActualReleaseClasses() throws ClassNotFoundException, InstantiationException, IllegalAccessException, IOException {
 		// Listing classes
 		this.temporaryClasses = this.actualReleaseClasses;
 		this.actualReleaseClasses = new TreeMap<>();
-		List<String> classNames = this.git.listFiles(this.actualRelease.getReleaseSha());
+		List<String> classNames = this.git.listJavaFiles(this.actualRelease.getReleaseSha());
 			// Creating classData for the new actual version
 			for (String className : classNames) {
 				List<RevisionMetric> metrics = new ArrayList<>();
@@ -115,10 +144,14 @@ public class MeasurmentIterator {
 				this.actualReleaseClasses.put(className, new ClassData(className, this.actualRelease, metrics));
 			}
 	}
-	
+	/**
+	 * Keep track of the previous version classes which are not in the new release: 
+	 * maybe they could be only moved in a revision of the new release
+	 * @throws ClassNotFoundException
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 */
 	private void updateTemporaryClasses() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-		// Keep track of the previous version classes which are not in the new releases: 
-				// maybe they could be only moved in a revision of the new release
 		for (ClassData previousVersionClass : this.temporaryClasses.values()) {
 			List<RevisionMetric> metrics = new ArrayList<>();
 			for (MetricType metricType : this.metricTypes) {
@@ -128,6 +161,14 @@ public class MeasurmentIterator {
 		}
 	}
 	
+	/**
+	 * Processes the changes in a revision by updating class measurements
+	 * @param commit
+	 * @param diff
+	 * @throws ClassNotFoundException
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 */
 	private void processDiff(RevCommit commit, DiffData diff) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 		if (!diff.getNewPath().contains(".java") && !diff.getOldPath().contains(".java")) {
 			// The file is not a java class
@@ -136,6 +177,7 @@ public class MeasurmentIterator {
 		
 		ClassData classData = null;
 		switch (diff.getChangeType()) {
+		// Class created
 		case ADD:
 			List<RevisionMetric> metrics = new ArrayList<>();
 			for (MetricType metricType : this.metricTypes) {
@@ -148,7 +190,7 @@ public class MeasurmentIterator {
 			this.insertClassData(classData);
 
 			break;
-			
+		// Class copied
 		case COPY:
 			classData = this.findClass(diff.getOldPath());
 			if (classData == null) {
@@ -160,6 +202,7 @@ public class MeasurmentIterator {
 			this.insertClassData(classData);
 			
 			break;
+		// Class modified
 		case MODIFY:
 			classData = this.findClass(diff.getOldPath());
 			if (classData == null) {
@@ -167,9 +210,8 @@ public class MeasurmentIterator {
 			}
 			classData.updateRevisionMeasurments(commit, diff);
 			break;
-			
+		// Class renamed
 		case RENAME:
-			
 			classData = this.findClass(diff.getOldPath());
 			if (classData == null) {
 				break;
@@ -180,6 +222,7 @@ public class MeasurmentIterator {
 			
 			this.insertClassData(classData);
 			break;
+		// Class deleted
 		case DELETE:
 			this.temporaryClasses.remove(diff.getOldPath());
 			break;
@@ -188,6 +231,12 @@ public class MeasurmentIterator {
 		}
 	}
 	
+	/**
+	 * Search if the class is among those provided for the analyzed version or if it is among the temporary classes
+	 * (classes currently present in the commits but that are not there at the release of the version)
+	 * @param className
+	 * @return
+	 */
 	private ClassData findClass(String className) {
 		ClassData classData = null;
 		if (this.actualReleaseClasses.containsKey(className)) {
@@ -200,6 +249,10 @@ public class MeasurmentIterator {
 	
 	}
 	
+	/**
+	 * Inserts the information of a class into the class set of the analyzed version or into a set of temporary classes
+	 * @param classData
+	 */
 	private void insertClassData(ClassData classData) {
 		if (this.actualReleaseClasses.containsKey(classData.getName())) {
 			this.actualReleaseClasses.put(classData.getName(), classData);

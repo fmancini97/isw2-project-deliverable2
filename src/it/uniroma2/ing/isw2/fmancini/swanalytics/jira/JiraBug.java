@@ -3,6 +3,11 @@ package it.uniroma2.ing.isw2.fmancini.swanalytics.jira;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Contains data related to a bug fix ticket
+ * @author fmancini
+ *
+ */
 public class JiraBug {
 	private String name;
 	private Date created;

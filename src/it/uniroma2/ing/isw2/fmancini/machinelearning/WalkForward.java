@@ -17,7 +17,15 @@ import weka.core.converters.ArffLoader;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.Remove;
 
-
+/**
+ * Performs training and testing of various classifiers using all possible combinations of feature selection and sampling techniques.
+ * The Walk Forward is used as a validation technique.
+ * The dataset is divided according to the number of releases.
+ * The analysis is performed on all projects that provide a dataset in arff format.
+ * The analysis results are saved in csv files.
+ * @author fmancini
+ *
+ */
 public class WalkForward {
 
 	public static void main(String[] args) {
@@ -39,6 +47,12 @@ public class WalkForward {
 		logger.info("All analysis are completed!");
 
 	}
+	
+	/**
+	 * Performs training and testing of various classifiers for a specific project
+	 * @param projectName
+	 * @param projectDataset
+	 */
 	private static void analyzeProject(String projectName, File projectDataset) {
 		Logger logger = Logger.getLogger(ProjectWorker.class.getSimpleName());
 		try {
@@ -101,6 +115,17 @@ public class WalkForward {
 		logger.log(Level.INFO, "[{0}] Analysis completed", projectName.toUpperCase());
 	}
 
+	/**
+	 * Performs training and testing of a classifier using a specific training and testing dataset
+	 * @param projectName
+	 * @param training
+	 * @param testing
+	 * @param numVersions
+	 * @param datasetSize
+	 * @param numDefectiveInTraining
+	 * @param numDefectiveInTesting
+	 * @return
+	 */
 	private static List<RunResult> runAnalysis(String projectName, Instances training, Instances testing, Integer numVersions, Integer datasetSize, Integer numDefectiveInTraining, Integer numDefectiveInTesting) {
 		Logger logger = Logger.getLogger(ProjectWorker.class.getSimpleName());
 		List<RunResult> results = new ArrayList<>();
@@ -174,6 +199,11 @@ public class WalkForward {
 		return results;
 	}
 	
+	/**
+	 * Identify for which value the "yes" is associated in the dataset in arff format
+	 * @param instances
+	 * @return
+	 */
 	private static Integer retriveClassIndex(Instances instances) {
 		Attribute attribute = instances.attribute(instances.numAttributes() - 1);
 		Enumeration<Object> values = attribute.enumerateValues();

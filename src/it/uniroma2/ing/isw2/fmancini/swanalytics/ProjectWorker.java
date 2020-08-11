@@ -24,6 +24,11 @@ import it.uniroma2.ing.isw2.fmancini.swanalytics.jira.IssueType;
 import it.uniroma2.ing.isw2.fmancini.swanalytics.jira.Ticket;
 import it.uniroma2.ing.isw2.fmancini.swanalytics.metrics.MetricType;
 
+/**
+ * Thread that performs analysis on an Apache project
+ * @author fmancini
+ *
+ */
 public class ProjectWorker extends Thread {
 	
 	private static String baseDir = "output/";
@@ -68,7 +73,10 @@ public class ProjectWorker extends Thread {
 	public void setReleasesPercentage(Integer releasesPercentage) {
 		this.releasesPercentage = releasesPercentage;
 	}
-
+	
+	/**
+	 * Scans the versions of a project and saves the result in a csv file
+	 */
 	protected void analyzeVersions() {
 		this.logger.log(Level.INFO, "[{0}] Looking for {0} releases", this.projectName);
 		
@@ -103,6 +111,10 @@ public class ProjectWorker extends Thread {
 		logger.log(Level.INFO, csvLogTemplate, new Object[] {this.projectName, csvSaved});
 	}
 	
+	/**
+	 * Analyzes the defectiveness of classes in a project and performs measurements on them.
+	 * The result is saved in a csv file
+	 */
 	protected void generateDataset() {
 		
 		this.logger.log(Level.INFO, "[{0}] Generating dataset...", this.projectName);
@@ -147,6 +159,10 @@ public class ProjectWorker extends Thread {
 		logger.log(Level.INFO, csvLogTemplate, new Object[] {this.projectName, csvSaved});
 	}
 	
+	/**
+	 * Analyze Jira tickets of one or more types.
+	 * The results are saved in csv files
+	 */
 	protected void analyzeTickets() {
 		for (IssueType issueType : this.issueTypes) {
 			logger.log(Level.INFO, "[{1}] Looking for issues of type {0} for the project {1}", new Object[] {issueType, projectName});

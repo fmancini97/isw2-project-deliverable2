@@ -2,6 +2,11 @@ package it.uniroma2.ing.isw2.fmancini.swanalytics.git;
 
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 
+/**
+ * It contains the differences between two revisions
+ * @author fmancini
+ *
+ */
 public class DiffData {
 	private String oldPath;
 	private String newPath;

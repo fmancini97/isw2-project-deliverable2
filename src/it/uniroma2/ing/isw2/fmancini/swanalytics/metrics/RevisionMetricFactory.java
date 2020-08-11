@@ -1,5 +1,10 @@
 package it.uniroma2.ing.isw2.fmancini.swanalytics.metrics;
 
+/**
+ * Factory that generates the classes to perform the measurements
+ * @author fmancini
+ *
+ */
 public class RevisionMetricFactory {
 	
 	
