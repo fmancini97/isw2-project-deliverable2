@@ -16,7 +16,7 @@ ant SWAnalytics
 ```
 ### config.json
 The file is an array of jsons, each of which represents a project to analyze.
-```json
+```js
 [{
     "project-name": "BOOKKEEPER", // Name of the project
     "tasks": ["TICKETS", "DATASET", "VERSIONS"], // Types of analysis to perform
