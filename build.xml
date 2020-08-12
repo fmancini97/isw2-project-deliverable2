@@ -5,6 +5,7 @@
               directory with the processing instruction <?eclipse.ant.import?>
               as the first entry and export the buildfile again. --><project basedir="." default="build" name="isw2-project-deliverable2">
     <property environment="env"/>
+    <property name="ECLIPSE_HOME" value="../../../../opt/eclipse/"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.8"/>
     <property name="source" value="1.8"/>
@@ -32,14 +33,14 @@
         <pathelement location="lib/jgit/jsch-0.1.55.jar"/>
         <pathelement location="lib/jgit/jzlib-1.1.1.jar"/>
         <pathelement location="lib/jgit/log4j-1.2.15.jar"/>
+        <pathelement location="lib/jgit/org.eclipse.jgit-5.7.0.202003110725-r.jar"/>
         <pathelement location="lib/jgit/org.eclipse.jgit.archive-5.7.0.202003110725-r.jar"/>
         <pathelement location="lib/jgit/org.eclipse.jgit.http.apache-5.7.0.202003110725-r.jar"/>
-        <pathelement location="lib/jgit/org.eclipse.jgit.lfs.server-5.7.0.202003110725-r.jar"/>
         <pathelement location="lib/jgit/org.eclipse.jgit.lfs-5.7.0.202003110725-r.jar"/>
+        <pathelement location="lib/jgit/org.eclipse.jgit.lfs.server-5.7.0.202003110725-r.jar"/>
         <pathelement location="lib/jgit/org.eclipse.jgit.pgm-5.7.0.202003110725-r.jar"/>
         <pathelement location="lib/jgit/org.eclipse.jgit.ssh.apache-5.7.0.202003110725-r.jar"/>
         <pathelement location="lib/jgit/org.eclipse.jgit.ui-5.7.0.202003110725-r.jar"/>
-        <pathelement location="lib/jgit/org.eclipse.jgit-5.7.0.202003110725-r.jar"/>
         <pathelement location="lib/jgit/org.osgi.core-4.3.1.jar"/>
         <pathelement location="lib/jgit/slf4j-api-1.7.2.jar"/>
         <pathelement location="lib/jgit/slf4j-log4j12-1.7.2.jar"/>
@@ -58,6 +59,7 @@
         <mkdir dir="bin"/>
         <copy includeemptydirs="false" todir="bin">
             <fileset dir="src">
+                <exclude name="**/*.launch"/>
                 <exclude name="**/*.java"/>
             </fileset>
         </copy>
@@ -89,17 +91,17 @@
         <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
         <antcall target="build"/>
     </target>
-    <target name="CSV2Arff (1)">
-        <java classname="it.uniroma2.ing.isw2.fmancini.machinelearning.CSV2Arff" failonerror="true" fork="yes">
-            <classpath refid="isw2-project-deliverable2.classpath"/>
-        </java>
-    </target>
-    <target name="SWAnalytics (2)">
+    <target name="SWAnalytics">
         <java classname="it.uniroma2.ing.isw2.fmancini.swanalytics.SWAnalytics" failonerror="true" fork="yes">
             <classpath refid="isw2-project-deliverable2.classpath"/>
         </java>
     </target>
-    <target name="WalkForward (1)">
+    <target name="CSV2Arff">
+        <java classname="it.uniroma2.ing.isw2.fmancini.machinelearning.CSV2Arff" failonerror="true" fork="yes">
+            <classpath refid="isw2-project-deliverable2.classpath"/>
+        </java>
+    </target>
+    <target name="WalkForward">
         <java classname="it.uniroma2.ing.isw2.fmancini.machinelearning.WalkForward" failonerror="true" fork="yes">
             <classpath refid="isw2-project-deliverable2.classpath"/>
         </java>

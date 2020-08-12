@@ -220,13 +220,13 @@ public class RunResult implements CSVable {
 		Float correctedPrecision = (this.precision.isNaN()) ? 0.0f : this.precision;
 		
 		return this.projectName + ";" + this.numVersions.toString() + ";" + this.trainingPercentage.toString() + ";"
-				+ this.defectiveInTrainingPercentage + ";" + this.defectiveInTestingPercentage.toString() + ";"
+				+ this.defectiveInTrainingPercentage.toString() + ";" + this.defectiveInTestingPercentage.toString() + ";"
 				+ this.classifier.toString() + ";" + this.sampling + ";" + featureSelectionName + ";"
 				+ this.truePositives.toString() + ";" + this.falsePositives.toString() + ";"
 				+ this.trueNegatives.toString() + ";" + this.falseNegatives.toString() + ";"
 				+ this.truePositiveRate.toString() + ";" + this.falsePositiveRate.toString() + ";"
 				+ this.trueNegativeRate.toString() + ";" + this.falseNegativeRate.toString() + ";"
-				+ correctedPrecision.toString().replace(',', '.') + ";" + this.recall.toString() + ";" 
+				+ correctedPrecision.toString() + ";" + this.recall.toString() + ";" 
 				+ this.auc.toString() + ";" + this.kappa.toString();
 	}
 

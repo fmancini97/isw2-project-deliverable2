@@ -5,6 +5,9 @@ import weka.filters.supervised.attribute.AttributeSelection;
 import weka.filters.supervised.instance.Resample;
 import weka.filters.supervised.instance.SMOTE;
 import weka.filters.supervised.instance.SpreadSubsample;
+
+import java.util.Locale;
+
 import weka.attributeSelection.CfsSubsetEval;
 import weka.attributeSelection.GreedyStepwise;
 import weka.classifiers.AbstractClassifier;
@@ -109,7 +112,7 @@ public class ClassifierThread extends Thread {
 					sampleSizePercent = sampleSizePercent * 100 * 2;
 					Resample resample = new Resample();
 					resample.setInputFormat(this.trainingSet);
-					opts = new String[]{ "-B", "1.0", "-Z", String.format("%.2f", sampleSizePercent).replace(',', '.')};
+					opts = new String[]{ "-B", "1.0", "-Z", String.format(Locale.US, "%.2f", sampleSizePercent)};
 					resample.setOptions(opts);
 					fc.setFilter(resample);
 					abstractClassfier = fc;
